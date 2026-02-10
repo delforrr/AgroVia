@@ -1,11 +1,8 @@
-# --- DEPENDENCIAS (Aplica a Client y Server) ---
 node_modules
 package-lock.json # Opcional: A veces se commitea, a veces no. Yo recomiendo SÍ commitearlo para consistencia.
 yarn.lock
 pnpm-lock.yaml
 
-# --- VARIABLES DE ENTORNO (CRÍTICO) ---
-# Nunca subas esto. Aquí están tus claves de Supabase y DB.
 .env
 .env.local
 .env.development.local
@@ -14,13 +11,11 @@ pnpm-lock.yaml
 *.env
 *.env.*
 
-# --- BUILD & FRONTEND (Client) ---
 dist/
 dist-ssr/
 build/
 *.local
 
-# --- BACKEND & LOGS (Server) ---
 logs
 *.log
 npm-debug.log*
@@ -31,7 +26,6 @@ pids
 *.seed
 *.pid.lock
 
-# --- SISTEMA OPERATIVO & EDITOR (Basura) ---
 .DS_Store
 Thumbs.db
 .idea
@@ -39,5 +33,4 @@ Thumbs.db
 *.swp
 *.swo
 
-# --- TESTING ---
 coverage/
