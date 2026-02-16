@@ -1,19 +1,28 @@
 import { useState } from 'react';
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box, useTheme, useMediaQuery, BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
-import { LeafIcon } from "@phosphor-icons/react"
+import { Leaf } from "@boxicons/react"
+import BottomNav from './BottomNav';
 
 const drawerWidth = 100;
 
 function AppDrawer() {
-    const [selectedIndex, setSelectedIndex] = useState(1);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
     };
+
+    if (isMobile) {
+        return (
+            <BottomNav/>
+        );
+    }
 
     return (
         <Drawer
@@ -23,8 +32,9 @@ function AppDrawer() {
                 '& .MuiDrawer-paper': {
                     width: drawerWidth,
                     boxSizing: 'border-box',
-                    backgroundColor: 'var(--color-bg-sidebar)',
-                    borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+                    backgroundColor: 'background.sidebar',
+                    boxShadow: '0px 5px 15px #00000059',
+                    overflow: 'hidden',
                 },
             }}
             variant="permanent"
@@ -33,7 +43,6 @@ function AppDrawer() {
 
             <List
                 sx={{
-                    p: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 0.5,
@@ -41,25 +50,26 @@ function AppDrawer() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         textAlign: 'center',
-                        borderRadius: 2,
+                        width: '100%',
                         '&.Mui-selected': {
-                            backgroundColor: 'rgba(106, 142, 94, 0.1)', // Fondo verde suave basado en el primario
+                            backgroundColor: 'action.selected',
+                            borderLeft: '4px solid #6A8E5E',
                             '&:hover': {
-                                backgroundColor: 'rgba(106, 142, 94, 0.2)',
+                                backgroundColor: 'action.selected',
                             },
                             '& .MuiListItemIcon-root, & .MuiListItemText-root': {
-                                color: 'var(--color-primary)', // Icono y texto en verde principal
+                                color: 'primary.main',
                             },
                         },
                     },
                     '& .MuiListItemIcon-root': {
                         minWidth: 0,
                         mb: 0.5,
-                        color: 'var(--color-text-muted)',
+                        color: 'primary.muted',
                     },
                     '& .MuiListItemText-root': {
                         m: 0,
-                        color: 'var(--color-text)',
+                        color: 'primary.muted',
                     },
                 }}
             >
@@ -69,11 +79,12 @@ function AppDrawer() {
                         flexDirection: 'column',
                         alignItems: 'center'
                     }}>
-                        <LeafIcon size={32} color="var(--color-primary)" />
+                        <Leaf fill="#6A8E5E" width={50} height={50}/>
                         <Typography sx={{
                             fontWeight: 'bold',
-                            color: 'var(--color-primary)',
-                            mt: 0.5
+                            color: 'primary.main',
+                            mt: 0.5,
+                            fontSize: 18,
                         }}>
                             AgroVía
                         </Typography>
@@ -96,7 +107,7 @@ function AppDrawer() {
                     </ListItemButton>
                 </ListItem>
 
-                <ListItem >
+                <ListItem disablePadding>
                     <ListItemButton
                         selected={selectedIndex === 1}
                         onClick={(event) => handleListItemClick(event, 1)}
@@ -110,7 +121,7 @@ function AppDrawer() {
                     </ListItemButton>
                 </ListItem>
 
-                <ListItem >
+                <ListItem disablePadding>
                     <ListItemButton
                         selected={selectedIndex === 2}
                         onClick={(event) => handleListItemClick(event, 2)}
@@ -124,7 +135,7 @@ function AppDrawer() {
                     </ListItemButton>
                 </ListItem>
 
-                <ListItem>
+                <ListItem disablePadding>
                     <ListItemButton
                         selected={selectedIndex === 3}
                         onClick={(event) => handleListItemClick(event, 3)}

@@ -3,17 +3,6 @@
   padding: 0;
   box-sizing: border-box;
   width: 100%;
-  height: 100%;
-  font-family: 'Inter';
+  max-height: 100%;
 
-  --color-primary: #6A8E5E;    /* Verde principal */
-  --color-accent: #A0785E;     /* Marroncito */
-  
-  --color-bg-app: #F4F7F4;     /* Verde muy claro/grisáceo para el fondo general */
-  --color-bg-card: #FFFFFF;    /* Blanco puro para las tarjetas */
-  --color-bg-sidebar: #FAFCFA; /* Un blanco ligeramente tintado para el menú lateral */
-
-  --color-text-main: #2C3E2D;  /* Verde muy oscuro casi negro para títulos */
-  --color-text: #5c7161 ;
-  --color-text-muted: #667A66; /* Gris verdoso para textos secundarios */
 }
