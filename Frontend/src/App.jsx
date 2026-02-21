@@ -1,8 +1,13 @@
-import { Box, Container, CssBaseline, Paper, Grid, ThemeProvider, createTheme, Typography } from '@mui/material';
+import { Box, CssBaseline, Paper, ThemeProvider, createTheme, Typography } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import Navbar from './components/Navbar.jsx';
-import Drawer from './components/Drawer.jsx';
-import HeroCard from './components/HeroCard.jsx';
+import AppDrawer from './components/Drawer.jsx';
+import InicioPage from './pages/Inicio.jsx';
+import AvisosPage from './pages/Avisos.jsx';
+import OperacionesPage from './pages/Operaciones.jsx';
+import MercadoPage from './pages/Mercado.jsx';
+import PerfilPage from './pages/Perfil.jsx';
+
 
 const theme = createTheme({
   palette: {
@@ -36,9 +41,10 @@ const theme = createTheme({
     },
     h5: {
       fontWeight: 600,
+      fontSize: '1.3rem'
     },
     h6: {
-      fontSize: '1.5rem'
+      fontSize: '1.2rem'
     },
   },
   components: {
@@ -59,42 +65,30 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-      }}>
-        <Drawer />
-
-        <Box component="main" sx={{
-          flexGrow: 1,
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: 'background.default',
-          color: 'var(--color-text)',
-          pb: { xs: 7, md: 0 }, // Espacio para la navegación inferior en móviles
-        }}>
-
-          <Navbar />
-
-          <Grid container spacing={2} sx={{
-            padding: 3,
-            flexGrow: 1,
-            minHeight: 0,
-          }}>
-            <Grid size={{ md: 3, lg: 3, xs: 12 }}>
-              <HeroCard userName="Delfor" />
-            </Grid>
-            <Grid size={{ md: 9, lg: 9, xs: 12 }}>
-              <Paper sx={{ p: 3, height: '100%', borderRadius: 5 }}>
-                <Typography variant="h5" gutterBottom>Panel de Control</Typography>
-                <Typography variant="body1">Selecciona una opción del menú para comenzar.</Typography>
-              </Paper>
-            </Grid>
-          </Grid>
+      <Router>
+        <CssBaseline />
+        <Box sx={{ display: 'flex' }}>
+          <AppDrawer />
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              minHeight: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: 'background.default',
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<InicioPage />} />
+              <Route path="/avisos" element={<AvisosPage />} />
+              <Route path="/operaciones" element={<OperacionesPage />} />
+              <Route path="/mercado" element={<MercadoPage />} />
+              <Route path="/perfil" element={<PerfilPage />} />
+            </Routes>
+          </Box>
         </Box>
-      </Box>
+      </Router>
     </ThemeProvider>
   );
 }

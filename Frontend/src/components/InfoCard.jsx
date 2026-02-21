@@ -17,7 +17,10 @@ export default function InfoCard({ text, description, icon }) {
     return (
         <Card sx={{
             borderRadius: 3,
-            boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px'
+            boxShadow: '0px 0px 5px 3px rgba(66, 68, 90, 0.19)',
+            '& .MuiCardContent-root:last-child': {
+                paddingBottom: "16px",
+            }
         }}>
             <CardContent>
                 <Typography variant="h6">
@@ -29,7 +32,7 @@ export default function InfoCard({ text, description, icon }) {
                     </Typography>
                     <IconComponent sx={{
                         color: icon === 'sunny' ? 'orange' : 'primary.main',
-                        fontSize: 35
+                        fontSize: 32
                     }} />
                 </Stack>
             </CardContent>

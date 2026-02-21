@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ title }) {
 
   return (
     <Box>
@@ -13,7 +13,7 @@ function ResponsiveAppBar() {
       }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Inicio
+            {title}
           </Typography>
           <Button color="inherit"><AccountCircleIcon sx={{ fontSize: 30 }} /></Button>
         </Toolbar>

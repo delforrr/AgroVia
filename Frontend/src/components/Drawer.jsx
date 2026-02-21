@@ -1,26 +1,31 @@
-import { useState } from 'react';
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box, useTheme, useMediaQuery, BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box, useTheme, useMediaQuery, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
-import { Leaf } from "@boxicons/react"
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import { Leaf, PiggyBank } from "@boxicons/react"
 import BottomNav from './BottomNav';
 
 const drawerWidth = 100;
 
+const MENU_ITEMS = [
+    { text: 'Inicio', icon: <HomeIcon />, path: '/' },
+    { text: 'Avisos', icon: <StorefrontIcon />, path: '/avisos' },
+    { text: 'Operaciones', icon: <BusinessIcon />, path: '/operaciones' },
+    { text: 'Mercado', icon: <TrendingUpIcon />, path: '/mercado' },
+    { text: 'Perfil', icon: <PersonIcon />, path: '/perfil' },
+];
+
 function AppDrawer() {
-    const [selectedIndex, setSelectedIndex] = useState(0);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-    const handleListItemClick = (event, index) => {
-        setSelectedIndex(index);
-    };
+    const location = useLocation();
 
     if (isMobile) {
         return (
-            <BottomNav/>
+            <BottomNav />
         );
     }
 
@@ -79,7 +84,7 @@ function AppDrawer() {
                         flexDirection: 'column',
                         alignItems: 'center'
                     }}>
-                        <Leaf fill="#6A8E5E" width={50} height={50}/>
+                        <Leaf fill="#6A8E5E" width={50} height={50} />
                         <Typography sx={{
                             fontWeight: 'bold',
                             color: 'primary.main',
@@ -93,61 +98,20 @@ function AppDrawer() {
 
                 <Divider />
 
-                <ListItem disablePadding>
-                    <ListItemButton
-                        selected={selectedIndex === 0}
-                        onClick={(event) => handleListItemClick(event, 0)}
-                    >
-                        <ListItemIcon>
-                            <HomeIcon />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Typography variant='body2'>Inicio</Typography>
-                        </ListItemText>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton
-                        selected={selectedIndex === 1}
-                        onClick={(event) => handleListItemClick(event, 1)}
-                    >
-                        <ListItemIcon>
-                            <BusinessIcon />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Typography variant='body2'>Operaciones</Typography>
-                        </ListItemText>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton
-                        selected={selectedIndex === 2}
-                        onClick={(event) => handleListItemClick(event, 2)}
-                    >
-                        <ListItemIcon>
-                            <TrendingUpIcon />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Typography variant='body2'>Mercado</Typography>
-                        </ListItemText>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton
-                        selected={selectedIndex === 3}
-                        onClick={(event) => handleListItemClick(event, 3)}
-                    >
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Typography variant='body2'>Perfil</Typography>
-                        </ListItemText>
-                    </ListItemButton>
-                </ListItem>
+                {MENU_ITEMS.map((item) => (
+                    <ListItem key={item.path} disablePadding>
+                        <ListItemButton
+                            component={Link}
+                            to={item.path}
+                            selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
+                        >
+                            <ListItemIcon>{item.icon}</ListItemIcon>
+                            <ListItemText>
+                                <Typography variant='body2'>{item.text}</Typography>
+                            </ListItemText>
+                        </ListItemButton>
+                    </ListItem>
+                ))}
             </List>
         </Drawer>
     )
