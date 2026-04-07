@@ -1,17 +1,25 @@
 {
   "name": "agrovia-backend",
+  "private": true,
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.102.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
     "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "nodemon": "^3.1.14",
+    "pg": "^8.16.3",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0"
   }
 }
