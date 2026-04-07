@@ -58,7 +58,7 @@ function AppDrawer() {
                         width: '100%',
                         '&.Mui-selected': {
                             backgroundColor: 'action.selected',
-                            borderLeft: '4px solid #6A8E5E',
+                            borderLeft: `4px solid ${theme.palette.primary.main}`,
                             '&:hover': {
                                 backgroundColor: 'action.selected',
                             },
@@ -84,7 +84,7 @@ function AppDrawer() {
                         flexDirection: 'column',
                         alignItems: 'center'
                     }}>
-                        <Leaf fill="#6A8E5E" width={50} height={50} />
+                        <Leaf fill={theme.palette.primary.main} width={50} height={50} />
                         <Typography sx={{
                             fontWeight: 'bold',
                             color: 'primary.main',
