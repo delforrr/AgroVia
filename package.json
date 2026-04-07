@@ -1,0 +1,19 @@
+{
+  "name": "agrovia",
+  "private": true,
+  "description": "Monorepo para AgroVia",
+  "workspaces": [
+    "Backend",
+    "Frontend"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "start": "turbo start"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "packageManager": "npm@10.0.0"
+}

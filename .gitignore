@@ -1,5 +1,4 @@
 node_modules
-package-lock.json # Opcional: A veces se commitea, a veces no. Yo recomiendo SÍ commitearlo para consistencia.
 yarn.lock
 pnpm-lock.yaml
 
@@ -34,3 +33,5 @@ Thumbs.db
 *.swo
 
 coverage/
+
+.turbo
