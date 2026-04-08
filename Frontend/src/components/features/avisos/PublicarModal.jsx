@@ -2,11 +2,11 @@ import { useState, useRef } from 'react';
 import { 
     Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, 
     FormControl, InputLabel, Select, MenuItem, Box, Alert, CircularProgress, 
-    IconButton, Typography, Paper
+    IconButton, Typography, Paper, Stack
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CATEGORIAS, CAMPOS_BASE } from '../../../hooks/useAvisos.js';
 
@@ -14,20 +14,39 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
     const [form, setForm] = useState({ categoria: 'Hacienda' });
     const [imagen, setImagen] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('La imagen es demasiado grande (máx 5MB)');
-                return;
-            }
-            setImagen(file);
-            setPreview(URL.createObjectURL(file));
+    const processFile = (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor, selecciona un archivo de imagen válido.');
+            return;
         }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('La imagen es demasiado grande (máx 5MB)');
+            return;
+        }
+        setImagen(file);
+        setPreview(URL.createObjectURL(file));
+    };
+
+    const handleFileChange = (e) => processFile(e.target.files[0]);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => setIsDragging(false);
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        processFile(file);
     };
 
     const handleRemoveImage = () => {
@@ -35,30 +54,6 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
         setPreview(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
-
-    const handleFile = (file) => {
-        if (!file || !file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setForm(prev => ({ ...prev, imagen: reader.result }));
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleFileChange = (e) => handleFile(e.target.files[0]);
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setDragging(false);
-        handleFile(e.dataTransfer.files[0]);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setDragging(true);
-    };
-
-    const handleDragLeave = () => setDragging(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -82,7 +77,6 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
         handleRemoveImage();
     };
 
-    // Separamos el campo título para insertar el input de imagen debajo
     const campoTitulo = CAMPOS_BASE.find(c => c.name === 'titulo');
     const restoCampos = CAMPOS_BASE.filter(c => c.name !== 'titulo');
 
@@ -102,7 +96,7 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                         </Alert>
                     )}
 
-                    <Stack spacing={2}>
+                    <Stack spacing={2.5}>
                         <FormControl fullWidth size="small">
                             <InputLabel id="pub-cat-label">Categoría *</InputLabel>
                             <Select
@@ -119,86 +113,94 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                             </Select>
                         </FormControl>
 
-                    {/* Título */}
-                    <TextField
-                        name={campoTitulo.name}
-                        label={campoTitulo.label + ' *'}
-                        size="small"
-                        value={form[campoTitulo.name] ?? ''}
-                        onChange={handleChange}
-                        required
-                        fullWidth
-                        sx={{ mb: 2 }}
-                    />
-
-                    {/* Input de Imagen Mejorado */}
-                    <Box sx={{ mb: 2.5 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>
-                            Imagen del aviso * (Máx 5MB)
-                        </Typography>
-                        
-                        {!preview ? (
-                            <Paper
-                                variant="outlined"
-                                sx={{
-                                    p: 2,
-                                    borderStyle: 'dashed',
-                                    bgcolor: 'action.hover',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    cursor: 'pointer',
-                                    '&:hover': { bgcolor: 'action.selected' }
-                                }}
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <PhotoCameraIcon sx={{ fontSize: 32, color: 'text.secondary', mb: 1 }} />
-                                <Typography variant="body2" color="text.secondary">
-                                    Haz clic para subir una foto
-                                </Typography>
-                            </Paper>
-                        ) : (
-                            <Box sx={{ position: 'relative', width: '100%', height: 160, borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
-                                <img src={preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                <IconButton 
-                                    size="small" 
-                                    onClick={handleRemoveImage}
-                                    sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.9)', '&:hover': { bgcolor: '#fff' } }}
-                                >
-                                    <DeleteIcon fontSize="small" color="error" />
-                                </IconButton>
-                            </Box>
-                        )}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                        />
-                    </Box>
-
-                    {/* Resto de los campos */}
-                    {restoCampos.map(({ name, label, type, multiline, rows, required, placeholder }) => (
                         <TextField
-                            key={name}
-                            name={name}
-                            label={label + (required ? ' *' : '')}
-                            type={type ?? 'text'}
+                            name={campoTitulo.name}
+                            label={campoTitulo.label + ' *'}
                             size="small"
-                            multiline={!!multiline}
-                            rows={rows}
-                            placeholder={placeholder}
-                            value={form[name] ?? ''}
+                            value={form[campoTitulo.name] ?? ''}
                             onChange={handleChange}
-                            required={!!required}
+                            required
                             fullWidth
-                            sx={{ mb: 2 }}
                         />
-                    ))}
+
+                        {/* Input de Imagen Mejorado con Drag & Drop */}
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>
+                                Imagen del aviso * (Máx 5MB)
+                            </Typography>
+                            
+                            {!preview ? (
+                                <Paper
+                                    variant="outlined"
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    sx={{
+                                        p: 3,
+                                        borderStyle: 'dashed',
+                                        borderWidth: 2,
+                                        borderColor: isDragging ? 'primary.main' : 'divider',
+                                        bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        transition: 'all 0.2s',
+                                        cursor: 'pointer',
+                                        '&:hover': { bgcolor: 'action.hover', borderColor: 'primary.main' }
+                                    }}
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <CloudUploadIcon sx={{ fontSize: 40, color: isDragging ? 'primary.main' : 'text.secondary', mb: 1 }} />
+                                    <Typography variant="body2" color="text.secondary" textAlign="center">
+                                        Arrastra una imagen aquí o haz clic para subir
+                                    </Typography>
+                                </Paper>
+                            ) : (
+                                <Box sx={{ position: 'relative', width: '100%', height: 180, borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                                    <img src={preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <IconButton 
+                                        size="small" 
+                                        onClick={handleRemoveImage}
+                                        sx={{ 
+                                            position: 'absolute', top: 8, right: 8, 
+                                            bgcolor: 'rgba(255,255,255,0.9)', 
+                                            '&:hover': { bgcolor: '#fff' },
+                                            boxShadow: 1
+                                        }}
+                                    >
+                                        <DeleteIcon fontSize="small" color="error" />
+                                    </IconButton>
+                                </Box>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                            />
+                        </Box>
+
+                        {restoCampos.map(({ name, label, type, multiline, rows, required, placeholder }) => (
+                            <TextField
+                                key={name}
+                                name={name}
+                                label={label + (required ? ' *' : '')}
+                                type={type ?? 'text'}
+                                size="small"
+                                multiline={!!multiline}
+                                rows={rows}
+                                placeholder={placeholder}
+                                value={form[name] ?? ''}
+                                onChange={handleChange}
+                                required={!!required}
+                                fullWidth
+                            />
+                        ))}
+                    </Stack>
                 </Box>
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2 }}>
+            <DialogActions sx={{ px: 3, pb: 2.5 }}>
                 <Button onClick={onClose} disabled={guardando}>Cancelar</Button>
                 <Button
                     type="submit"
@@ -206,6 +208,7 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                     variant="contained"
                     disabled={guardando}
                     startIcon={guardando ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
+                    sx={{ borderRadius: 2, px: 3 }}
                 >
                     {guardando ? 'Publicando…' : 'Publicar'}
                 </Button>
