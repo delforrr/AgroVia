@@ -44,7 +44,7 @@ export const updateAviso = async (req, res) => {
 
 export const deleteAviso = async (req, res) => {
     try {
-        const success = await Aviso.softDelete(req.params.id);
+        const success = await Aviso.delete(req.params.id);
         if (!success) return res.status(404).json({ error: 'Aviso no encontrado.' });
         res.status(204).send();
     } catch (err) {

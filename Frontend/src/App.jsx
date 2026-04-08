@@ -1,7 +1,7 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { lightTheme, darkTheme } from './theme/theme.js';
-import { ThemeContextProvider, useThemeMode } from './theme/ThemeContext.jsx';
+import { lightTheme, darkTheme } from './context/theme.js';
+import { ThemeContextProvider, useThemeMode } from './context/ThemeContext.jsx';
 import './App.css';
 import AppLayout from './components/layout/AppLayout.jsx';
 import InicioPage from './pages/Inicio.jsx';
