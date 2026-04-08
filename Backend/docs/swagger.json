@@ -1,0 +1,190 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AgroVia API",
+    "version": "1.0.0",
+    "description": "Documentación de la API para la plataforma AgroVia"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor Local"
+    }
+  ],
+  "paths": {
+    "/api/avisos": {
+      "get": {
+        "summary": "Obtener todos los avisos",
+        "description": "Retorna la lista completa de avisos (Hacienda, Maquinaria, Granos, Servicios) disponibles.",
+        "tags": [
+          "Avisos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa"
+          }
+        }
+      },
+      "post": {
+        "summary": "Agregar un nuevo aviso",
+        "description": "Agrega un nuevo aviso a la base de datos",
+        "tags": [
+          "Avisos"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "categoria": {
+                    "type": "string",
+                    "example": "Hacienda"
+                  },
+                  "titulo": {
+                    "type": "string",
+                    "example": "50 cabezas terneros Hereford – 180 kg"
+                  },
+                  "descripcion": {
+                    "type": "string",
+                    "example": "Terneros de excelente calidad."
+                  },
+                  "precio": {
+                    "type": "number",
+                    "example": 550000
+                  },
+                  "moneda": {
+                    "type": "string",
+                    "example": "ARS"
+                  },
+                  "provincia": {
+                    "type": "string",
+                    "example": "Córdoba"
+                  },
+                  "localidad": {
+                    "type": "string",
+                    "example": "Río Cuarto"
+                  },
+                  "vendedor": {
+                    "type": "string",
+                    "example": "Juan Rodríguez"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Aviso creado exitosamente"
+          }
+        }
+      }
+    },
+    "/api/avisos/{id}": {
+      "get": {
+        "summary": "Obtener un aviso por ID",
+        "description": "Devuelve un único aviso que coincida con el ID proporcionado.",
+        "tags": [
+          "Avisos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID del aviso",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa"
+          },
+          "404": {
+            "description": "Aviso no encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualiza un aviso por ID",
+        "description": "Modifica uno o más campos de un aviso existente.",
+        "tags": [
+          "Avisos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID del aviso a modificar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "categoria": {
+                    "type": "string"
+                  },
+                  "titulo": {
+                    "type": "string"
+                  },
+                  "precio": {
+                    "type": "number"
+                  },
+                  "moneda": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Aviso actualizado"
+          },
+          "404": {
+            "description": "Aviso no encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un aviso",
+        "description": "Elimina un aviso de forma permanente de la base de datos.",
+        "tags": [
+          "Avisos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID del aviso a eliminar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Aviso eliminado correctamente"
+          },
+          "404": {
+            "description": "Aviso no encontrado"
+          }
+        }
+      }
+    }
+  }
+}

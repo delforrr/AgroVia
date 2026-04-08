@@ -1,61 +1,46 @@
-import React, { useState, useMemo } from 'react';
-import Navbar from './components/Navbar';
-import { Box, Button, Container, Grid, Typography, createTheme, ThemeProvider, CssBaseline, Stack } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { lightTheme, darkTheme } from './theme/theme.js';
+import { ThemeContextProvider, useThemeMode } from './theme/ThemeContext.jsx';
 import './App.css';
+import AppLayout from './components/layout/AppLayout.jsx';
+import InicioPage from './pages/Inicio.jsx';
+import AvisosPage from './pages/Avisos.jsx';
+import OperacionesPage from './pages/Operaciones.jsx';
+import MercadoPage from './pages/Mercado.jsx';
+import PerfilPage from './pages/Perfil.jsx';
 
-function App() {
-  const [message, setMessage] = useState('');
-  const [mode, setMode] = useState('light');
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    children: [
+      { index: true, element: <InicioPage /> },
+      { path: "avisos", element: <AvisosPage /> },
+      { path: "operaciones", element: <OperacionesPage /> },
+      { path: "mercado", element: <MercadoPage /> },
+      { path: "perfil", element: <PerfilPage /> },
+    ],
+  },
+]);
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-        },
-      }),
-    [mode],
-  );
-
-  const toggleTheme = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
-
-  const handleTestApi = async () => {
-    try {
-      const response = await fetch('http://localhost:3000');
-      const text = await response.text();
-      setMessage(text);
-    } catch (error) {
-      setMessage('Error al conectar con el backend');
-      console.error(error);
-    }
-  };
+function ThemedApp() {
+  const { mode } = useThemeMode();
+  const theme = mode === 'dark' ? darkTheme : lightTheme;
 
   return (
     <ThemeProvider theme={theme}>
-      <Navbar toggleTheme={toggleTheme} isDarkMode={mode === 'dark'} />
       <CssBaseline />
-      <Container maxWidth={false}>
-
-        <Grid container className="main-layout">
-
-          <Grid size={{xs: 12, md: 8}}>
-            <Box sx={{ backgroundColor: 'grey.300', p: 2, flexGrow: 1 }}>
-              <Typography>Contenido Principal (xs=12, md=8)</Typography>
-            </Box>
-          </Grid>
-
-          <Grid size={{xs: 12, md: 4}}>
-            <Box sx={{ backgroundColor: 'grey.400', p: 2, flexGrow: 1 }}>
-              <Typography>Barra Lateral (xs=12, md=4)</Typography>
-            </Box>
-          </Grid>
-
-        </Grid>
-
-      </Container>
+      <RouterProvider router={router} />
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <ThemeContextProvider>
+      <ThemedApp />
+    </ThemeContextProvider>
   );
 }
 
