@@ -36,6 +36,30 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
+    const handleFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setForm(prev => ({ ...prev, imagen: reader.result }));
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleFileChange = (e) => handleFile(e.target.files[0]);
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragging(false);
+        handleFile(e.dataTransfer.files[0]);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setDragging(true);
+    };
+
+    const handleDragLeave = () => setDragging(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -63,7 +87,7 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
     const restoCampos = CAMPOS_BASE.filter(c => c.name !== 'titulo');
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
             <DialogTitle sx={{ fontWeight: 700 }}>
                 Publicar aviso
                 <IconButton onClick={onClose} size="small" sx={{ position: 'absolute', right: 12, top: 12 }}>
@@ -71,27 +95,29 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                 </IconButton>
             </DialogTitle>
             <DialogContent dividers>
-                <Box component="form" id="form-publicar" onSubmit={handleSubmit}>
+                <Box component="form" id="form-publicar" onSubmit={handleSubmit} sx={{ py: 1 }}>
                     {errorGuardando && (
                         <Alert severity="error" sx={{ mb: 2 }}>
                             Error al publicar el aviso. Intenta de nuevo.
                         </Alert>
                     )}
 
-                    <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                        <InputLabel id="pub-cat-label">Categoría *</InputLabel>
-                        <Select
-                            labelId="pub-cat-label"
-                            name="categoria"
-                            value={form.categoria ?? 'Hacienda'}
-                            label="Categoría *"
-                            onChange={handleChange}
-                        >
-                            {CATEGORIAS.filter(c => c !== 'Todos').map(c => (
-                                <MenuItem key={c} value={c}>{c}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Stack spacing={2}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="pub-cat-label">Categoría *</InputLabel>
+                            <Select
+                                labelId="pub-cat-label"
+                                name="categoria"
+                                value={form.categoria ?? 'Hacienda'}
+                                label="Categoría *"
+                                onChange={handleChange}
+                                required
+                            >
+                                {CATEGORIAS.filter(c => c !== 'Todos').map(c => (
+                                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                     {/* Título */}
                     <TextField

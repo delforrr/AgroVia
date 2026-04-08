@@ -30,11 +30,11 @@ import { getCotizaciones } from '../services/cotizacionesService.js';
 import { getOperaciones, ESTADOS_OPERACION } from '../services/operacionesService.js';
 import { getAvisos } from '../services/api.js';
 
-// ── Helpers ───────────────────────────────────────────────────────────
+// Helpers
 const fmt = (n) => n?.toLocaleString('es-AR') ?? '—';
 const fmtMonto = (m, mon) => mon === 'USD' ? `USD ${fmt(m)}` : `$${fmt(m)}`;
 
-// ── Chip de variación ─────────────────────────────────────────────────
+// Chip de variación
 function VarChip({ pct }) {
     if (pct == null) return null;
     const up = pct >= 0;
@@ -55,7 +55,7 @@ function VarChip({ pct }) {
     );
 }
 
-// ── Acceso rápido card ────────────────────────────────────────────────
+// Acceso rápido card 
 function QuickCard({ icon, label, sublabel, color, to, onClick }) {
     return (
         <Card
@@ -80,7 +80,7 @@ function QuickCard({ icon, label, sublabel, color, to, onClick }) {
     );
 }
 
-// ── Estado chip de operación ──────────────────────────────────────────
+// Estado chip de operación
 const ESTADO_CFG = {
     'Iniciada':      { color: '#1976d2', bg: '#e3f2fd' },
     'En revisión':   { color: '#f57c00', bg: '#fff3e0' },
@@ -98,21 +98,20 @@ function EstadoChip({ estado }) {
     );
 }
 
-// ── Clima mock ────────────────────────────────────────────────────────
+// Clima mock
 const CLIMA_MOCK = [
     { dia: 'Hoy',    temp: '24°C', icon: <WbSunnyIcon sx={{ color: '#f9a825' }} />,  desc: 'Soleado',    humedad: '45%' },
     { dia: 'Mañana', temp: '19°C', icon: <CloudIcon sx={{ color: '#78909c' }} />,    desc: 'Nublado',    humedad: '60%' },
     { dia: 'Pasado', temp: '15°C', icon: <WaterDropIcon sx={{ color: '#1976d2' }} />, desc: 'Lluvia',    humedad: '85%' },
 ];
 
-// ── Notificaciones mock ───────────────────────────────────────────────
+// Notificaciones mock
 const NOTIFS = [
     { id: 1, texto: 'Tu operación OP-2024-001 requiere documentación.', tipo: 'warning', hace: '2h' },
     { id: 2, texto: 'La cotización de Soja subió un 2.1% hoy.', tipo: 'info', hace: '4h' },
     { id: 3, texto: 'Nuevo aviso de Hacienda en Córdoba disponible.', tipo: 'info', hace: '6h' },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════
 export default function InicioPage() {
     const navigate = useNavigate();
 

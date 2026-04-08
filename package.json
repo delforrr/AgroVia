@@ -13,7 +13,7 @@
     "start": "turbo start"
   },
   "devDependencies": {
-    "turbo": "latest"
+    "turbo": "^2.9.5"
   },
   "packageManager": "npm@10.0.0"
 }
