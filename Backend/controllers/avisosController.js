@@ -23,7 +23,13 @@ export const getAvisoById = async (req, res) => {
 
 export const createAviso = async (req, res) => {
     try {
-        const nuevoAviso = await Aviso.create(req.body, req.userId || null);
+        const data = { ...req.body };
+        if (req.file) {
+            data.imagen = `/uploads/${req.file.filename}`;
+        } else {
+            return res.status(400).json({ error: 'La imagen es obligatoria.' });
+        }
+        const nuevoAviso = await Aviso.create(data, req.userId || null);
         res.status(201).json(nuevoAviso);
     } catch (err) {
         console.error('[POST /avisos]', err.message);
@@ -33,7 +39,11 @@ export const createAviso = async (req, res) => {
 
 export const updateAviso = async (req, res) => {
     try {
-        const avisoActualizado = await Aviso.update(req.params.id, req.body);
+        const data = { ...req.body };
+        if (req.file) {
+            data.imagen = `/uploads/${req.file.filename}`;
+        }
+        const avisoActualizado = await Aviso.update(req.params.id, data);
         if (!avisoActualizado) return res.status(404).json({ error: 'Aviso no encontrado.' });
         res.json(avisoActualizado);
     } catch (err) {

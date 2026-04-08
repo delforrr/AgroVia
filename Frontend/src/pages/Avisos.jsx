@@ -16,6 +16,7 @@ import ProductCard from '../components/features/avisos/ProductCard.jsx';
 import FiltrosDrawer from '../components/features/avisos/FiltrosDrawer.jsx';
 import PublicarModal from '../components/features/avisos/PublicarModal.jsx';
 import { useAvisos, CATEGORIAS, ORDEN_OPTIONS } from '../hooks/useAvisos.js';
+import { useAuth } from '../hooks/useAuth.js';
 
 function EmptyState({ onReset }) {
     return (

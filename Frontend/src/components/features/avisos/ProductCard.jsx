@@ -63,6 +63,12 @@ function DetallesCat({ aviso }) {
 
 export default function ProductCard({ aviso }) {
     const cat = CATEGORIA_CONFIG[aviso.categoria] ?? CATEGORIA_CONFIG['Servicios'];
+    const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') ?? 'http://localhost:3000';
+    
+    // Si la imagen es una ruta relativa que empieza con /uploads, le concatenamos la base URL
+    const imageUrl = aviso.imagen?.startsWith('/uploads') 
+        ? `${BASE_URL}${aviso.imagen}` 
+        : aviso.imagen;
 
     return (
         <Card
@@ -84,7 +90,7 @@ export default function ProductCard({ aviso }) {
                 <CardMedia
                     component="img"
                     height="200"
-                    image={aviso.imagen}
+                    image={imageUrl}
                     alt={aviso.titulo}
                     sx={{ objectFit: 'cover' }}
                 />

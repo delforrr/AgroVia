@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { supabase } from '../lib/supabaseClient.js';
 
-const BASE = `${import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api'}/avisos`;
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const BASE = `${BASE_URL}/api/avisos`;
 
 // Headers con JWT para rutas protegidas (POST, PUT, DELETE)
 async function getAuthHeaders() {
@@ -17,6 +18,7 @@ export const getAvisos = async (params = {}) => {
 
 export const postAviso = async (aviso) => {
     const headers = await getAuthHeaders();
+    // Si aviso es FormData, axios maneja el content-type automáticamente
     const response = await axios.post(BASE, aviso, { headers });
     return response.data;
 };
