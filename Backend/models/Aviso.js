@@ -154,10 +154,9 @@ export default class Aviso {
         return this.findById(id);
     }
 
-    static async softDelete(id) {
+    static async delete(id) {
         const { rows } = await pool.query(
-            `UPDATE public.avisos SET estado = 'eliminado', updated_at = NOW()
-             WHERE id = $1 RETURNING id`,
+            `DELETE FROM public.avisos WHERE id = $1 RETURNING id`,
             [id]
         );
         return rows.length > 0;

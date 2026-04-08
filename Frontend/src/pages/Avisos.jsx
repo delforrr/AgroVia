@@ -33,6 +33,9 @@ function EmptyState({ onReset }) {
 }
 
 export default function AvisosPage() {
+    const { usuario } = useAuth();
+    const isAdmin = usuario?.rol === 'admin';
+
     const {
         busqueda, setBusqueda,
         categoria, setCategoria,
@@ -227,23 +230,25 @@ export default function AvisosPage() {
                             {avisosFiltrados.map(aviso => (
                                 <Box key={aviso.id} sx={{ position: 'relative' }}>
                                     <ProductCard aviso={aviso} />
-                                    <Tooltip title="Eliminar aviso">
-                                        <IconButton
-                                            id={`btn-eliminar-${aviso.id}`}
-                                            size="small"
-                                            onClick={() => handleEliminar(aviso.id)}
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 8,
-                                                right: 8,
-                                                backgroundColor: 'rgba(0,0,0,0.45)',
-                                                color: '#fff',
-                                                '&:hover': { backgroundColor: 'error.main' },
-                                            }}
-                                        >
-                                            <DeleteOutlineIcon fontSize="small" />
-                                        </IconButton>
-                                    </Tooltip>
+                                    {isAdmin && (
+                                        <Tooltip title="Eliminar aviso">
+                                            <IconButton
+                                                id={`btn-eliminar-${aviso.id}`}
+                                                size="small"
+                                                onClick={() => handleEliminar(aviso.id)}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    backgroundColor: 'rgba(0,0,0,0.45)',
+                                                    color: '#fff',
+                                                    '&:hover': { backgroundColor: 'error.main' },
+                                                }}
+                                            >
+                                                <DeleteOutlineIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
                                 </Box>
                             ))}
                         </Box>
