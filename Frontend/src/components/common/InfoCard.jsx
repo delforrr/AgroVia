@@ -1,3 +1,5 @@
+// Componente de tarjeta para mostrar información detallada
+
 import { Card, CardContent, Typography, Stack } from '@mui/material';
 import SunnyIcon from '@mui/icons-material/Sunny';
 import CloudIcon from '@mui/icons-material/Cloud';

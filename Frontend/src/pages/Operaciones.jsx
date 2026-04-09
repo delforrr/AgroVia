@@ -1,3 +1,5 @@
+// Página para la gestión de operaciones del usuario
+
 import { useState } from 'react';
 import {
     Box, Typography, Stack, Chip, Card, CardContent, CardActionArea,

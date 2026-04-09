@@ -1,3 +1,5 @@
+// Hook personalizado para manejar operaciones
+
 import { useState, useEffect, useCallback } from 'react';
 import { getOperaciones, toggleDocumento } from '../services/operacionesService.js';
 

@@ -1,3 +1,5 @@
+// Componente de panel lateral para notificaciones
+
 import { Drawer, List, ListItem, ListItemText, Typography, Divider, Box, IconButton, Stack, Badge } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';

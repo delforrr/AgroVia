@@ -1,3 +1,5 @@
+// Componente de menú lateral desplegable
+
 import { Link, useLocation } from 'react-router-dom';
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box, useTheme, useMediaQuery, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';

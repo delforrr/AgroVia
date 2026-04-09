@@ -1,3 +1,5 @@
+// Barra de navegación con filtros para los listados
+
 import { AppBar, Box, Toolbar, Typography, Chip, Select } from '@mui/material';
 import { useState } from 'react';
 

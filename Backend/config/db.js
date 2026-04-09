@@ -1,3 +1,5 @@
+// Archivo para la conexión a la base de datos
+
 import pg from 'pg';
 import dotenv from 'dotenv';
 

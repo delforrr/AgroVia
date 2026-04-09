@@ -1,8 +1,4 @@
-/**
- * Servicio de cotizaciones — simula una API externa de precios
- * (estilo MATBA-ROFEX / Bolsa de Rosario / Liniers / BCRA)
- * Incluye latencia artificial para simular red real.
- */
+// Servicio de cotizaciones del mercado agropecuario
 
 const simularLatencia = (ms = 900) =>
   new Promise((resolve) => setTimeout(resolve, ms));

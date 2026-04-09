@@ -1,3 +1,5 @@
+// Middleware para el manejo de subida de archivos con Multer
+
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';

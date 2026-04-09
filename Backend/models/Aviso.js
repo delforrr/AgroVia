@@ -1,3 +1,5 @@
+// Modelo de datos para los Avisos en la base de datos
+
 import pool from '../config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 

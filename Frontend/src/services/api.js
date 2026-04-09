@@ -1,3 +1,5 @@
+// Configuración base de Axios para las peticiones a la API
+
 import axios from 'axios';
 import { supabase } from '../lib/supabaseClient.js';
 

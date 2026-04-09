@@ -1,3 +1,5 @@
+// Componente de diseño base para la aplicación
+
 import { Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import AppDrawer from './Drawer.jsx';

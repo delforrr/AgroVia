@@ -1,3 +1,5 @@
+// Configuración del tema de Material UI
+
 import { createTheme } from '@mui/material';
 
 const commonTypography = {

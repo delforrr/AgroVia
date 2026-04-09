@@ -1,3 +1,5 @@
+// Contexto para manejar el tema claro/oscuro de la aplicación
+
 import { createContext, useContext, useState, useMemo } from 'react';
 
 const ThemeContext = createContext({

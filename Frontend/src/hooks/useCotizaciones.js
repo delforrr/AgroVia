@@ -1,3 +1,5 @@
+// Hook personalizado para manejar cotizaciones
+
 import { useState, useEffect, useCallback } from 'react';
 import { getCotizaciones } from '../services/cotizacionesService.js';
 

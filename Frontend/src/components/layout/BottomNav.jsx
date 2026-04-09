@@ -1,3 +1,5 @@
+// Barra de navegación inferior para dispositivos móviles
+
 import { Link, useLocation } from 'react-router-dom';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';

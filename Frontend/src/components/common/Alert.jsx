@@ -1,3 +1,5 @@
+// Componente genérico para mostrar alertas al usuario
+
 export default function Alert({ tipo, mensaje, tiempo }) {
     return (
         <Box sx={{

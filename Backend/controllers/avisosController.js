@@ -1,3 +1,5 @@
+// Controlador REST para los avisos
+
 import Aviso from '../models/Aviso.js';
 
 export const getAvisos = async (req, res) => {

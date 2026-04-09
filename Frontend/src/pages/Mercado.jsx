@@ -1,3 +1,5 @@
+// Página que muestra el mercado de productos y servicios
+
 import { useState } from 'react';
 import {
     Box, Typography, Tab, Tabs, Table, TableBody, TableCell,

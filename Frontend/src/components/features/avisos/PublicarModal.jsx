@@ -1,3 +1,5 @@
+// Componente modal para publicar nuevos avisos
+
 import { useState, useRef } from 'react';
 import { 
     Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, 

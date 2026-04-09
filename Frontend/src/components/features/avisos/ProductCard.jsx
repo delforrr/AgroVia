@@ -1,3 +1,5 @@
+// Componente de tarjeta para mostrar detalles de un producto/aviso
+
 import {
     Card, CardContent, CardMedia, CardActions,
     Typography, Stack, Button, Chip, Box, Divider, Tooltip, IconButton

@@ -1,7 +1,4 @@
-/**
- * Servicio de operaciones — simula una API del backend AgroVia
- * con datos de negociaciones entre partes del sector agropecuario.
- */
+// Servicio de operaciones para el sector agropecuario
 
 const simularLatencia = (ms = 700) =>
     new Promise((resolve) => setTimeout(resolve, ms));

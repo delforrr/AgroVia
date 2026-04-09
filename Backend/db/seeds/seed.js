@@ -1,11 +1,4 @@
-/**
- * AgroVia — Seed Script
- * Inserta los datos de prueba del mock original en Supabase.
- * 
- * Uso:
- *   1. Asegurarse de tener DATABASE_URL en Backend/.env
- *   2. Desde la raíz del monorepo: node Backend/db/seeds/seed.js
- */
+// Script para poblar la base de datos con datos de prueba
 
 import pg from 'pg';
 import { v4 as uuidv4 } from 'uuid';

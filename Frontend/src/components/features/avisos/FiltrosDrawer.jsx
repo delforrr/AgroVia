@@ -1,3 +1,5 @@
+// Panel lateral para aplicar filtros a los avisos
+
 import { Drawer, Stack, Typography, IconButton, Divider, FormControl, InputLabel, Select, MenuItem, TextField, Button } from '@mui/material';
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';

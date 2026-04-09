@@ -1,3 +1,5 @@
+// Componente de tarjeta destacada con imagen y descripción
+
 import { Paper, Box, Typography, Stack, useTheme } from '@mui/material';
 import { Leaf } from "@boxicons/react"
 import InfoCard from './InfoCard';

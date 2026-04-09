@@ -1,3 +1,5 @@
+// Página de inicio de la aplicación
+
 import { useState, useEffect } from 'react';
 import {
     Box, Grid, Paper, Typography, Stack, Chip, Avatar,

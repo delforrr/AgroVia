@@ -1,3 +1,5 @@
+// Cliente de Supabase para autenticación y base de datos
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;

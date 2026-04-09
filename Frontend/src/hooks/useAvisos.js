@@ -1,3 +1,5 @@
+// Hook personalizado para manejar avisos
+
 import { useState, useMemo, useEffect } from 'react';
 import { getAvisos, postAviso, putAviso, deleteAviso } from '../services/api.js';
 
