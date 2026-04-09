@@ -1,3 +1,5 @@
+// Página de perfil del usuario
+
 import { useState } from 'react';
 import {
     Box, Typography, Stack, Avatar, Button, Paper, Chip,
@@ -43,17 +45,17 @@ const MOCK_CUENTAS = [
 const ESTADO_COLOR = {
     'Completada': { bg: '#e8f5e9', text: '#2e7d32' },
     'En proceso': { bg: '#fff8e1', text: '#f57f17' },
-    'Cancelada':  { bg: '#fce4ec', text: '#c62828' },
+    'Cancelada': { bg: '#fce4ec', text: '#c62828' },
 };
 
 const TIPO_COLOR = {
-    'Venta':    '#6A8E5E',
-    'Compra':   '#A0785E',
+    'Venta': '#6A8E5E',
+    'Compra': '#A0785E',
     'Servicio': '#5E7FA0',
 };
 
-function LoginView({ login, loading, error, setError, onSwitchToRegister }) {
-    const [email, setEmail]       = useState('');
+function LoginView({ login, loginConGoogle, loading, error, setError, onSwitchToRegister }) {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPass, setShowPass] = useState(false);
 
@@ -162,7 +164,41 @@ function LoginView({ login, loading, error, setError, onSwitchToRegister }) {
                         </Stack>
                     </form>
 
-                    <Divider sx={{ my: 2 }} />
+                    <Divider sx={{ my: 2 }}>o</Divider>
+
+                    {/* Login con Google */}
+                    <Button
+                        id="btn-login-google"
+                        variant="outlined"
+                        fullWidth
+                        size="large"
+                        onClick={loginConGoogle}
+                        sx={{
+                            borderRadius: 3,
+                            borderColor: 'rgba(0,0,0,0.23)',
+                            color: 'text.primary',
+                            fontWeight: 600,
+                            mb: 1,
+                            gap: 1.5,
+                            '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+                        }}
+                        startIcon={
+                            <Box
+                                component="svg"
+                                viewBox="0 0 48 48"
+                                sx={{ width: 20, height: 20, flexShrink: 0 }}
+                            >
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                            </Box>
+                        }
+                    >
+                        Continuar con Google
+                    </Button>
+
+                    <Divider sx={{ my: 1 }} />
 
                     <Button
                         id="btn-registro"
@@ -181,10 +217,10 @@ function LoginView({ login, loading, error, setError, onSwitchToRegister }) {
 
 // ═══════════════════════════ TAB: INFORMACIÓN ═════════════════════════
 function TabInfo({ usuario, onSave }) {
-    const [editando, setEditando]   = useState(false);
+    const [editando, setEditando] = useState(false);
     const [guardando, setGuardando] = useState(false);
-    const [datos, setDatos]         = useState({ ...usuario });
-    const [success, setSuccess]     = useState(false);
+    const [datos, setDatos] = useState({ ...usuario });
+    const [success, setSuccess] = useState(false);
 
     const handleChange = (campo) => (e) => setDatos(prev => ({ ...prev, [campo]: e.target.value }));
 
@@ -389,7 +425,7 @@ function TabOperaciones() {
             <Stack spacing={2}>
                 {MOCK_OPERACIONES.map(op => {
                     const estadoStyle = ESTADO_COLOR[op.estado] ?? ESTADO_COLOR['Completada'];
-                    const tipoColor   = TIPO_COLOR[op.tipo] ?? '#6A8E5E';
+                    const tipoColor = TIPO_COLOR[op.tipo] ?? '#6A8E5E';
                     return (
                         <Paper
                             key={op.id}
@@ -586,7 +622,7 @@ function TabCuentas() {
                 }}
                 id="btn-agregar-cuenta-dashed"
                 component="button"
-                onClick={() => {}}
+                onClick={() => { }}
             >
                 <AddIcon sx={{ color: 'text.secondary', fontSize: 28 }} />
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -626,7 +662,7 @@ function LogoutDialog({ open, onClose, onConfirm }) {
 
 // ═════════════════════════════ PERFIL VIEW ════════════════════════════
 function PerfilView({ usuario, logout, actualizarPerfil }) {
-    const [tab, setTab]           = useState(0);
+    const [tab, setTab] = useState(0);
     const [dialogOpen, setDialog] = useState(false);
 
     return (
@@ -682,11 +718,11 @@ function PerfilView({ usuario, logout, actualizarPerfil }) {
 
 // ═══════════════════════════ PANTALLA DE REGISTRO ════════════════════
 function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
-    const [nombre,    setNombre]    = useState('');
-    const [email,     setEmail]     = useState('');
-    const [password,  setPassword]  = useState('');
-    const [showPass,  setShowPass]  = useState(false);
-    const [success,   setSuccess]   = useState(false);
+    const [nombre, setNombre] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPass, setShowPass] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -722,10 +758,12 @@ function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
                                     />
                                     <TextField id="register-password" label="Contraseña" type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} fullWidth
                                         helperText="Mínimo 6 caracteres"
-                                        slotProps={{ input: {
-                                            startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} /></InputAdornment>,
-                                            endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => setShowPass(p => !p)} edge="end">{showPass ? <VisibilityOffOutlinedIcon fontSize="small" /> : <VisibilityOutlinedIcon fontSize="small" />}</IconButton></InputAdornment>,
-                                        }}}
+                                        slotProps={{
+                                            input: {
+                                                startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} /></InputAdornment>,
+                                                endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => setShowPass(p => !p)} edge="end">{showPass ? <VisibilityOffOutlinedIcon fontSize="small" /> : <VisibilityOutlinedIcon fontSize="small" />}</IconButton></InputAdornment>,
+                                            }
+                                        }}
                                     />
                                     <Button id="btn-crear-cuenta" type="submit" variant="contained" fullWidth size="large" disabled={loading} sx={{ borderRadius: 3, fontWeight: 700, py: 1.4 }}>
                                         {loading ? <CircularProgress size={22} color="inherit" /> : 'Crear cuenta'}
@@ -744,14 +782,14 @@ function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
 
 // ─────────────────────────────── EXPORT ──────────────────────────────
 export default function PerfilPage() {
-    const { usuario, loading, error, setError, login, register, logout, actualizarPerfil } = useAuth();
+    const { usuario, loading, error, setError, login, loginConGoogle, register, logout, actualizarPerfil } = useAuth();
     const [view, setView] = useState('login'); // 'login' | 'register'
 
     if (!usuario) {
         if (view === 'register') {
             return <RegisterView register={register} loading={loading} error={error} setError={setError} onSwitchToLogin={() => { setError(''); setView('login'); }} />;
         }
-        return <LoginView login={login} loading={loading} error={error} setError={setError} onSwitchToRegister={() => { setError(''); setView('register'); }} />;
+        return <LoginView login={login} loginConGoogle={loginConGoogle} loading={loading} error={error} setError={setError} onSwitchToRegister={() => { setError(''); setView('register'); }} />;
     }
 
     return <PerfilView usuario={usuario} logout={logout} actualizarPerfil={actualizarPerfil} />;

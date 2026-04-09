@@ -1,10 +1,11 @@
+// Punto de entrada principal para el servidor Backend
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routes/index.js';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -13,36 +14,26 @@ const swaggerDocument = JSON.parse(fs.readFileSync(new URL('./docs/swagger.json'
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+// ─── CORS: en producción, solo acepta el dominio de Vercel ───────────────────
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    process.env.FRONTEND_URL, // https://tu-app.vercel.app (Railway env var)
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`[CORS] Origen bloqueado: ${origin}`);
+            callback(new Error(`CORS: origen no permitido → ${origin}`));
+        }
+    },
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.static('public'));
-
-// Middleware de autenticación JWT (Supabase Auth)
-// Aplica a rutas que modifican datos (POST, PUT, DELETE)
-// Adjunta req.userId con el UUID del usuario autenticado
-export function authMiddleware(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader?.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Token de autenticación requerido.' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const secret = process.env.SUPABASE_JWT_SECRET;
-
-    if (!secret) {
-        // En desarrollo sin JWT configurado, permitir pasar sin validar
-        console.warn('[Auth] SUPABASE_JWT_SECRET no definido — omitiendo validación JWT');
-        return next();
-    }
-
-    try {
-        const decoded = jwt.verify(token, secret);
-        req.userId = decoded.sub; // UUID del usuario en Supabase Auth
-        next();
-    } catch (err) {
-        return res.status(401).json({ error: 'Token inválido o expirado.' });
-    }
-}
 
 // Rutas 
 app.get('/', (req, res) => {

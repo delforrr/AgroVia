@@ -1,4 +1,7 @@
+// Página que muestra el listado de avisos
+
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box, Typography, Stack, TextField, InputAdornment,
     Chip, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Badge,
@@ -35,7 +38,8 @@ function EmptyState({ onReset }) {
 
 export default function AvisosPage() {
     const { usuario } = useAuth();
-    const isAdmin = usuario?.rol === 'admin';
+    const isAdmin     = usuario?.rol === 'admin';
+    const navigate    = useNavigate();
 
     const {
         busqueda, setBusqueda,
@@ -57,6 +61,11 @@ export default function AvisosPage() {
     const [errorGuardando, setErrorGuardando] = useState(false);
 
     const handlePublicar = async (datos) => {
+        // Si no hay sesión, llevar al usuario a login antes de publicar
+        if (!usuario) {
+            navigate('/perfil');
+            return;
+        }
         try {
             setGuardando(true);
             setErrorGuardando(false);
@@ -69,10 +78,15 @@ export default function AvisosPage() {
         }
     };
 
+    // Puede eliminar: el admin o el propio creador del aviso
+    const puedeEliminar = (aviso) =>
+        isAdmin || (usuario && aviso.user_id === usuario.id);
+
     const handleEliminar = async (id) => {
         if (!window.confirm('¿Eliminar este aviso?')) return;
         await eliminarAviso(id);
     };
+
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'background.default' }}>
@@ -164,10 +178,10 @@ export default function AvisosPage() {
                         id="btn-publicar-aviso"
                         variant="contained"
                         startIcon={<AddIcon />}
-                        onClick={() => setModalPublicar(true)}
+                        onClick={() => usuario ? setModalPublicar(true) : navigate('/perfil')}
                         sx={{ borderRadius: '20px', whiteSpace: 'nowrap', fontWeight: 600 }}
                     >
-                        Publicar aviso
+                        {usuario ? 'Publicar aviso' : 'Iniciar sesión para publicar'}
                     </Button>
                 </Stack>
             </Box>
@@ -231,7 +245,7 @@ export default function AvisosPage() {
                             {avisosFiltrados.map(aviso => (
                                 <Box key={aviso.id} sx={{ position: 'relative' }}>
                                     <ProductCard aviso={aviso} />
-                                    {isAdmin && (
+                                    {puedeEliminar(aviso) && (
                                         <Tooltip title="Eliminar aviso">
                                             <IconButton
                                                 id={`btn-eliminar-${aviso.id}`}

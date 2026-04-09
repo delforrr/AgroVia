@@ -1,7 +1,10 @@
+// Componente principal de la aplicación con configuración de rutas y temas
+
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { lightTheme, darkTheme } from './context/theme.js';
 import { ThemeContextProvider, useThemeMode } from './context/ThemeContext.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 import './App.css';
 import AppLayout from './components/layout/AppLayout.jsx';
 import InicioPage from './pages/Inicio.jsx';
@@ -31,7 +34,9 @@ function ThemedApp() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

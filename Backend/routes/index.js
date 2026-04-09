@@ -1,3 +1,5 @@
+// Enrutador principal de la API del Backend
+
 import express from 'express';
 import avisosRoutes from './avisos.js';
 
