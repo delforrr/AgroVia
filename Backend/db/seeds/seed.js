@@ -16,10 +16,13 @@ const pool = new Pool({
 });
 
 // ─── Usuario de prueba (vendedor genérico) ───────────────────────────────
-// IMPORTANTE: Este usuario NO puede usarse con Supabase Auth sin pasar por
-// el flujo de registro. Para seedear con un usuario real, primero registralo
-// en el Dashboard de Supabase → Auth → Users, copiá el UUID y ponelo aquí.
-const SEED_USUARIO_ID = null; // Reemplazar con un UUID real si querés vincular
+// IMPORTANTE: Para que el sistema de autoría funcione, este UUID debe existir 
+// en auth.users y public.usuarios. 
+// Pasos: 
+// 1. Registrate en la app o creá un usuario en el Dashboard de Supabase.
+// 2. Copiá el ID (UUID) del usuario.
+// 3. Pegalo aquí si querés que los avisos del seed te pertenezcan.
+const SEED_USUARIO_ID = process.env.SEED_USER_ID || null; 
 
 // ─── Datos de prueba ─────────────────────────────────────────────────────
 const avisosSeed = [

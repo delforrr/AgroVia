@@ -13,6 +13,7 @@
     "start": "turbo start"
   },
   "devDependencies": {
+    "supabase": "^2.89.0",
     "turbo": "^2.9.5"
   },
   "packageManager": "npm@10.0.0"

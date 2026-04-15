@@ -18,17 +18,23 @@ export function authMiddleware(req, res, next) {
     const token  = authHeader.split(' ')[1];
     const secret = process.env.SUPABASE_JWT_SECRET;
 
-    // En desarrollo sin JWT configurado, permite pasar con advertencia
     if (!secret) {
-        console.warn('[Auth] ⚠️  SUPABASE_JWT_SECRET no definido — omitiendo validación JWT');
-        return next();
+        console.error('[Auth] ERROR CRÍTICO: SUPABASE_JWT_SECRET no definido en las variables de entorno.');
+        return res.status(500).json({ error: 'Error interno de configuración de seguridad.' });
     }
 
     try {
         const decoded = jwt.verify(token, secret);
-        req.userId = decoded.sub; // UUID del usuario autenticado en Supabase
+        
+        // El 'sub' en el JWT de Supabase es el UUID del usuario
+        if (!decoded.sub) {
+            return res.status(401).json({ error: 'Token inválido: falta identificador de usuario.' });
+        }
+
+        req.userId = decoded.sub;
         next();
-    } catch {
-        return res.status(401).json({ error: 'Token inválido o expirado.' });
+    } catch (err) {
+        const message = err.name === 'TokenExpiredError' ? 'El token ha expirado.' : 'Token inválido.';
+        return res.status(401).json({ error: message });
     }
 }

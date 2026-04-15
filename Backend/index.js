@@ -14,11 +14,11 @@ const swaggerDocument = JSON.parse(fs.readFileSync(new URL('./docs/swagger.json'
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ─── CORS: en producción, solo acepta el dominio de Vercel ───────────────────
+//  CORS: en producción, solo acepta el dominio de Vercel 
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:4173',
-    process.env.FRONTEND_URL, // https://tu-app.vercel.app (Railway env var)
+    process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({

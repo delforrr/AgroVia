@@ -272,14 +272,14 @@ function TabInfo({ usuario, onSave }) {
                                 boxShadow: '0 4px 14px rgba(106,142,94,0.25)',
                             }}
                         >
-                            {usuario.nombre[0]}{usuario.apellido[0]}
+                            {usuario.nombre?.[0]?.toUpperCase()}{usuario.apellido?.[0]?.toUpperCase() || ''}
                         </Avatar>
                     </Badge>
 
                     {/* Info básica */}
                     <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', sm: 'left' } }}>
                         <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                            {usuario.nombre} {usuario.apellido}
+                            {usuario.nombre} {usuario.apellido || ''}
                         </Typography>
                         <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
                             <Chip
@@ -719,6 +719,9 @@ function PerfilView({ usuario, logout, actualizarPerfil }) {
 // ═══════════════════════════ PANTALLA DE REGISTRO ════════════════════
 function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
     const [nombre, setNombre] = useState('');
+    const [apellido, setApellido] = useState('');
+    const [dni, setDni] = useState('');
+    const [fechaNacimiento, setFechaNacimiento] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPass, setShowPass] = useState(false);
@@ -726,16 +729,23 @@ function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!nombre || !email || !password) { setError('Completá todos los campos.'); return; }
-        if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres.'); return; }
-        const result = await register(email, password, nombre);
+        if (!nombre || !apellido || !dni || !fechaNacimiento || !email || !password) { 
+            setError('Completá todos los campos incluyendo DNI y Fecha de Nacimiento.'); 
+            return; 
+        }
+        if (password.length < 6) { 
+            setError('La contraseña debe tener al menos 6 caracteres.'); 
+            return; 
+        }
+        
+        const result = await register(email, password, nombre, apellido, dni, fechaNacimiento);
         if (result?.ok) setSuccess(true);
     };
 
     return (
         <Fade in>
             <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'background.default', p: 2 }}>
-                <Paper elevation={3} sx={{ p: { xs: 3, sm: 5 }, borderRadius: 5, width: '100%', maxWidth: 420, textAlign: 'center' }}>
+                <Paper elevation={3} sx={{ p: { xs: 3, sm: 5 }, borderRadius: 5, width: '100%', maxWidth: 450, textAlign: 'center' }}>
                     <Box sx={{ mb: 3 }}>
                         <AgricultureIcon sx={{ fontSize: 52, color: 'primary.main' }} />
                         <Typography variant="h4" sx={{ color: 'primary.main', fontWeight: 700, mt: 0.5 }}>AgroVía</Typography>
@@ -752,10 +762,24 @@ function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
                             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 3, textAlign: 'left' }} onClose={() => setError('')}>{error}</Alert>}
                             <form onSubmit={handleSubmit} noValidate>
                                 <Stack spacing={2}>
-                                    <TextField id="register-nombre" label="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} fullWidth />
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                        <TextField id="register-nombre" label="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} fullWidth />
+                                        <TextField id="register-apellido" label="Apellido" value={apellido} onChange={e => setApellido(e.target.value)} fullWidth />
+                                    </Stack>
+                                    
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                        <TextField id="register-dni" label="DNI" value={dni} onChange={e => setDni(e.target.value)} fullWidth 
+                                            helperText="DNI 12345678 fallará (Mock API)"
+                                        />
+                                        <TextField id="register-fecha" label="Fecha Nacimiento" type="date" value={fechaNacimiento} onChange={e => setFechaNacimiento(e.target.value)} fullWidth 
+                                            slotProps={{ inputLabel: { shrink: true } }}
+                                        />
+                                    </Stack>
+
                                     <TextField id="register-email" label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} fullWidth autoComplete="email"
                                         slotProps={{ input: { startAdornment: <InputAdornment position="start"><EmailOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} /></InputAdornment> } }}
                                     />
+                                    
                                     <TextField id="register-password" label="Contraseña" type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} fullWidth
                                         helperText="Mínimo 6 caracteres"
                                         slotProps={{
@@ -784,6 +808,15 @@ function RegisterView({ register, loading, error, setError, onSwitchToLogin }) {
 export default function PerfilPage() {
     const { usuario, loading, error, setError, login, loginConGoogle, register, logout, actualizarPerfil } = useAuth();
     const [view, setView] = useState('login'); // 'login' | 'register'
+
+    // Mientras se verifica la sesión inicial (F5), mostramos un spinner global
+    if (loading && !usuario) {
+        return (
+            <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress color="primary" />
+            </Box>
+        );
+    }
 
     if (!usuario) {
         if (view === 'register') {

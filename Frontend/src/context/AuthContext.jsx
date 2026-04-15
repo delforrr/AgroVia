@@ -16,50 +16,57 @@ export function AuthProvider({ children }) {
     const [error,    setError]    = useState('');
 
     // ── Cargar perfil extendido desde public.usuarios ─────────────────────
-    const cargarPerfil = useCallback(async (userId) => {
-        const { data, error: err } = await supabase
-            .from('usuarios')
-            .select('*')
-            .eq('id', userId)
-            .single();
+    // Reintenta hasta 3 veces si no encuentra el perfil (por si el trigger tarda)
+    const cargarPerfil = useCallback(async (userId, reintentos = 3) => {
+        for (let i = 0; i < reintentos; i++) {
+            const { data, error: err } = await supabase
+                .from('usuarios')
+                .select('*')
+                .eq('id', userId)
+                .single();
 
-        if (err) {
-            console.warn('[AuthContext] Perfil extendido no encontrado:', err.message);
-            return null;
+            if (!err && data) return data;
+            
+            // Si es un error de "no encontrado", esperamos un poco y reintentamos
+            if (i < reintentos - 1) {
+                await new Promise(res => setTimeout(res, 500 * (i + 1)));
+            }
         }
-        return data;
+        return null;
     }, []);
 
     // ── Suscripción única a cambios de sesión ─────────────────────────────
     useEffect(() => {
-        // Sesión inicial
-        supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-            setSession(s);
-            if (s?.user) {
-                const perfil = await cargarPerfil(s.user.id);
-                setUsuario(perfil
-                    ? { ...perfil, email: s.user.email }
-                    : { id: s.user.id, email: s.user.email, nombre: s.user.email }
-                );
-            }
-            setLoading(false);
-        });
+        let montado = true;
 
-        // Listener de cambios (login, logout, refresh token)
+        // El listener se dispara inmediatamente al suscribirse con la sesión actual
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+            if (!montado) return;
+
             setSession(s);
+            
             if (s?.user) {
+                // Solo cargamos perfil si no lo tenemos o si cambió el usuario
                 const perfil = await cargarPerfil(s.user.id);
-                setUsuario(perfil
-                    ? { ...perfil, email: s.user.email }
-                    : { id: s.user.id, email: s.user.email, nombre: s.user.email }
-                );
+                if (montado) {
+                    setUsuario(perfil
+                        ? { ...perfil, email: s.user.email }
+                        : { id: s.user.id, email: s.user.email, nombre: s.user.email }
+                    );
+                    setLoading(false);
+                }
             } else {
-                setUsuario(null);
+                if (montado) {
+                    setUsuario(null);
+                    setLoading(false);
+                }
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            montado = false;
+            subscription.unsubscribe();
+        };
     }, [cargarPerfil]);
 
     // ── LOGIN con email/contraseña ────────────────────────────────────────
@@ -73,14 +80,16 @@ export function AuthProvider({ children }) {
                     ? 'Email o contraseña incorrectos.'
                     : err.message;
                 setError(msg);
+                setLoading(false); // Solo apagamos loading si hay error
                 return { ok: false };
             }
+            // Si no hay error, NO apagamos loading aquí. 
+            // Dejamos que onAuthStateChange detecte el login, cargue el perfil y apague el loading.
             return { ok: true };
         } catch {
             setError('Error de conexión. Intentá de nuevo.');
-            return { ok: false };
-        } finally {
             setLoading(false);
+            return { ok: false };
         }
     }, []);
 
@@ -97,19 +106,41 @@ export function AuthProvider({ children }) {
     }, []);
 
     // ── REGISTRO con email/contraseña ─────────────────────────────────────
-    const register = useCallback(async (email, password, nombre) => {
+    // Mockea la búsqueda de DNI para simular integración con API de Renaper/Personas
+    const buscarDni = async (dni) => {
+        // Simulación de delay de API externa
+        await new Promise(res => setTimeout(res, 800));
+        
+        // Mock de respuesta: si el DNI es '12345678', simulamos que no es válido
+        if (dni === '12345678') throw new Error('DNI no encontrado en el Registro Nacional.');
+        
+        return { valido: true, origen: 'Mock API Renaper' };
+    };
+
+    const register = useCallback(async (email, password, nombre, apellido, dni, fechaNacimiento) => {
         setLoading(true);
         setError('');
         try {
+            // Validar DNI antes de registrar (Mock)
+            await buscarDni(dni);
+
             const { error: err } = await supabase.auth.signUp({
                 email,
                 password,
-                options: { data: { nombre } },
+                options: { 
+                    data: { 
+                        nombre, 
+                        apellido, 
+                        dni, 
+                        fecha_nacimiento: fechaNacimiento 
+                    } 
+                },
             });
+
             if (err) { setError(err.message); return { ok: false }; }
             return { ok: true, needsConfirmation: true };
-        } catch {
-            setError('Error al registrar. Intentá de nuevo.');
+        } catch (err) {
+            setError(err.message || 'Error al registrar. Intentá de nuevo.');
             return { ok: false };
         } finally {
             setLoading(false);

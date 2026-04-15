@@ -9,6 +9,7 @@ import {
     Tooltip, Skeleton, Alert, LinearProgress, IconButton,
     Paper, Badge,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -261,9 +262,9 @@ function OperacionDialog({ op, open, onClose, onToggleDoc }) {
                 </Typography>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={3}>
                     {[
-                        { rol: 'Comprador', parte: op.comprador, color: '#1565c0', bgColor: '#e3f2fd' },
-                        { rol: 'Vendedor',  parte: op.vendedor,  color: '#2e7d32', bgColor: '#e8f5e9' },
-                    ].map(({ rol, parte, color, bgColor }) => (
+                        { rol: 'Comprador', parte: op.comprador, color: 'info', lightBg: '#e3f2fd' },
+                        { rol: 'Vendedor',  parte: op.vendedor,  color: 'success', lightBg: '#e8f5e9' },
+                    ].map(({ rol, parte, color, lightBg }) => (
                         <Paper
                             key={rol}
                             elevation={0}
@@ -271,19 +272,21 @@ function OperacionDialog({ op, open, onClose, onToggleDoc }) {
                                 flex: 1,
                                 p: 2,
                                 borderRadius: 3,
-                                border: `1px solid ${color}30`,
-                                background: `linear-gradient(135deg, ${bgColor} 0%, #fff 100%)`,
+                                border: (t) => `1px solid ${alpha(t.palette[color].main, 0.3)}`,
+                                background: (t) => t.palette.mode === 'dark'
+                                    ? `linear-gradient(135deg, ${alpha(t.palette[color].main, 0.15)} 0%, ${alpha(t.palette.background.paper, 0.5)} 100%)`
+                                    : `linear-gradient(135deg, ${lightBg} 0%, #fff 100%)`,
                             }}
                         >
                             <Stack direction="row" spacing={1.5} alignItems="center">
-                                <Avatar sx={{ bgcolor: color, width: 38, height: 38, fontSize: '1.1rem' }}>
+                                <Avatar sx={{ bgcolor: `${color}.main`, width: 38, height: 38, fontSize: '1.1rem' }}>
                                     {parte.avatar}
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="caption" color={color} fontWeight={700} textTransform="uppercase">
+                                    <Typography variant="caption" color={`${color}.main`} fontWeight={700} textTransform="uppercase">
                                         {rol}
                                     </Typography>
-                                    <Typography variant="body2" fontWeight={600}>{parte.nombre}</Typography>
+                                    <Typography variant="body2" fontWeight={600} color="text.primary">{parte.nombre}</Typography>
                                     <Typography variant="caption" color="text.secondary">CUIT: {parte.cuit}</Typography>
                                     <br />
                                     <Typography variant="caption" color="text.secondary">📍 {parte.localidad}</Typography>
@@ -533,7 +536,15 @@ export default function OperacionesPage() {
                 {/* ── Proceso de negociación (info) ── */}
                 <Paper
                     elevation={0}
-                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 4, border: '1px solid rgba(0,0,0,0.08)', mb: 3, background: 'linear-gradient(135deg, #f1fff1 0%, #fff 100%)' }}
+                    sx={{
+                        p: { xs: 2, md: 3 },
+                        borderRadius: 4,
+                        mb: 3,
+                        border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.2) : 'rgba(0,0,0,0.08)'}`,
+                        background: (t) => t.palette.mode === 'dark'
+                            ? `linear-gradient(135deg, ${alpha(t.palette.primary.main, 0.1)} 0%, ${alpha(t.palette.background.paper, 0.4)} 100%)`
+                            : 'linear-gradient(135deg, #f1fff1 0%, #fff 100%)',
+                    }}
                 >
                     <Typography variant="subtitle2" fontWeight={700} textTransform="uppercase" letterSpacing="0.06em" color="text.secondary" mb={2}>
                         Proceso de Negociación AgroVia
