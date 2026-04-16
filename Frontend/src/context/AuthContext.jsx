@@ -1,215 +1,165 @@
 // Contexto global de autenticación — provee el estado de sesión a toda la app.
-// Envuelve el árbol de componentes en App.jsx para evitar múltiples suscripciones
-// a Supabase y permite acceder al usuario desde cualquier componente con useAuthContext().
-
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
 
-// ─── Contexto ─────────────────────────────────────────────────────────────────
 const AuthContext = createContext(null);
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
     const [session,  setSession]  = useState(null);
     const [usuario,  setUsuario]  = useState(null);
     const [loading,  setLoading]  = useState(true);
     const [error,    setError]    = useState('');
 
-    // ── Cargar perfil extendido desde public.usuarios ─────────────────────
-    // Reintenta hasta 3 veces si no encuentra el perfil (por si el trigger tarda)
-    const cargarPerfil = useCallback(async (userId, reintentos = 3) => {
-        for (let i = 0; i < reintentos; i++) {
-            const { data, error: err } = await supabase
-                .from('usuarios')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (!err && data) return data;
-            
-            // Si es un error de "no encontrado", esperamos un poco y reintentamos
-            if (i < reintentos - 1) {
-                await new Promise(res => setTimeout(res, 500 * (i + 1)));
-            }
-        }
-        return null;
+    // ─── Función para transformar datos de Auth/DB en un objeto de usuario único ───
+    const mapearUsuario = useCallback((userAuth, perfilDb = null) => {
+        if (!userAuth) return null;
+        
+        // La "Fuente de Verdad" inicial son los metadatos del token de Supabase.
+        // Esto garantiza que la UI tenga datos ANTES de que el trigger termine.
+        const meta = userAuth.user_metadata || {};
+        
+        return {
+            id: userAuth.id,
+            email: userAuth.email,
+            nombre: perfilDb?.nombre || meta.nombre || userAuth.email.split('@')[0],
+            apellido: perfilDb?.apellido || meta.apellido || '',
+            dni: perfilDb?.dni || meta.dni || '',
+            fecha_nacimiento: perfilDb?.fecha_nacimiento || meta.fecha_nacimiento || '',
+            rol: perfilDb?.rol || 'usuario',
+            miembro_desde: perfilDb?.miembro_desde || userAuth.created_at,
+            telefono: perfilDb?.telefono || '',
+            provincia: perfilDb?.provincia || '',
+            localidad: perfilDb?.localidad || '',
+            cuit: perfilDb?.cuit || '',
+            avatar: perfilDb?.avatar_url || meta.avatar_url || null,
+            // Flag para saber si los datos vienen de la DB o solo del token
+            sync: !!perfilDb
+        };
     }, []);
 
-    // ── Suscripción única a cambios de sesión ─────────────────────────────
+    const cargarPerfil = useCallback(async (userId) => {
+        const { data, error: err } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        
+        if (err) return null;
+        return data;
+    }, []);
+
     useEffect(() => {
         let montado = true;
 
-        // El listener se dispara inmediatamente al suscribirse con la sesión actual
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
             if (!montado) return;
 
             setSession(s);
-            
+
             if (s?.user) {
-                // Solo cargamos perfil si no lo tenemos o si cambió el usuario
+                // 1. Inmediatamente mostramos datos desde el Metadata (Sin esperar a la DB)
+                const userInicial = mapearUsuario(s.user);
+                setUsuario(userInicial);
+                setLoading(false);
+
+                // 2. Intentamos enriquecer con datos de la DB en segundo plano
                 const perfil = await cargarPerfil(s.user.id);
-                if (montado) {
-                    setUsuario(perfil
-                        ? { ...perfil, email: s.user.email }
-                        : { id: s.user.id, email: s.user.email, nombre: s.user.email }
-                    );
-                    setLoading(false);
+                if (montado && perfil) {
+                    setUsuario(mapearUsuario(s.user, perfil));
                 }
             } else {
-                if (montado) {
-                    setUsuario(null);
-                    setLoading(false);
-                }
+                setUsuario(null);
+                setLoading(false);
             }
         });
 
-        return () => {
-            montado = false;
-            subscription.unsubscribe();
-        };
-    }, [cargarPerfil]);
+        return () => { montado = false; subscription.unsubscribe(); };
+    }, [cargarPerfil, mapearUsuario]);
 
-    // ── LOGIN con email/contraseña ────────────────────────────────────────
+    // ─── LOGIN ────────────────────────────────────────────────────────────
     const login = useCallback(async (email, password) => {
         setLoading(true);
         setError('');
-        try {
-            const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-            if (err) {
-                const msg = err.message === 'Invalid login credentials'
-                    ? 'Email o contraseña incorrectos.'
-                    : err.message;
-                setError(msg);
-                setLoading(false); // Solo apagamos loading si hay error
-                return { ok: false };
-            }
-            // Si no hay error, NO apagamos loading aquí. 
-            // Dejamos que onAuthStateChange detecte el login, cargue el perfil y apague el loading.
-            return { ok: true };
-        } catch {
-            setError('Error de conexión. Intentá de nuevo.');
+        const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+        if (err) {
+            setError(err.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos.' : err.message);
             setLoading(false);
             return { ok: false };
         }
+        return { ok: true };
     }, []);
 
-    // ── LOGIN con Google (OAuth) ───────────────────────────────────────────
+    // ─── LOGIN CON GOOGLE ─────────────────────────────────────────────────
     const loginConGoogle = useCallback(async () => {
         setError('');
-        const { error: err } = await supabase.auth.signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/perfil`,
-            },
+            options: { redirectTo: `${window.location.origin}/perfil` },
         });
-        if (err) setError(err.message);
     }, []);
 
-    // ── REGISTRO con email/contraseña ─────────────────────────────────────
-    // Mockea la búsqueda de DNI para simular integración con API de Renaper/Personas
-    const buscarDni = async (dni) => {
-        // Simulación de delay de API externa
-        await new Promise(res => setTimeout(res, 800));
-        
-        // Mock de respuesta: si el DNI es '12345678', simulamos que no es válido
-        if (dni === '12345678') throw new Error('DNI no encontrado en el Registro Nacional.');
-        
-        return { valido: true, origen: 'Mock API Renaper' };
-    };
-
+    // ─── REGISTRO ─────────────────────────────────────────────────────────
     const register = useCallback(async (email, password, nombre, apellido, dni, fechaNacimiento) => {
         setLoading(true);
         setError('');
         try {
-            // Validar DNI antes de registrar (Mock)
-            await buscarDni(dni);
+            // Mock validación DNI (puedes mantenerlo aquí o moverlo al backend)
+            if (dni === '12345678') throw new Error('DNI no válido.');
 
-            const { error: err } = await supabase.auth.signUp({
+            const { data, error: err } = await supabase.auth.signUp({
                 email,
                 password,
                 options: { 
-                    data: { 
-                        nombre, 
-                        apellido, 
-                        dni, 
-                        fecha_nacimiento: fechaNacimiento 
-                    } 
+                    data: { nombre, apellido, dni, fecha_nacimiento: fechaNacimiento } 
                 },
             });
 
             if (err) { setError(err.message); return { ok: false }; }
-            return { ok: true, needsConfirmation: true };
+            
+            // Si el registro es exitoso y no requiere confirmación, onAuthStateChange hará el resto.
+            return { ok: true, needsConfirmation: data.session === null };
         } catch (err) {
-            setError(err.message || 'Error al registrar. Intentá de nuevo.');
+            setError(err.message);
             return { ok: false };
         } finally {
             setLoading(false);
         }
     }, []);
 
-    // ── LOGOUT ────────────────────────────────────────────────────────────
     const logout = useCallback(async () => {
         await supabase.auth.signOut();
         setUsuario(null);
         setSession(null);
-        setError('');
     }, []);
 
-    // ── ACTUALIZAR PERFIL ─────────────────────────────────────────────────
     const actualizarPerfil = useCallback(async (datos) => {
         if (!session?.user?.id) return { ok: false };
-        try {
-            const { error: err } = await supabase
-                .from('usuarios')
-                .update({
-                    nombre:    datos.nombre,
-                    apellido:  datos.apellido,
-                    telefono:  datos.telefono,
-                    provincia: datos.provincia,
-                    localidad: datos.localidad,
-                    cuit:      datos.cuit,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq('id', session.user.id);
+        const { error: err } = await supabase
+            .from('usuarios')
+            .update({ ...datos, updated_at: new Date().toISOString() })
+            .eq('id', session.user.id);
 
-            if (err) { setError(err.message); return { ok: false }; }
-            setUsuario(prev => ({ ...prev, ...datos }));
-            return { ok: true };
-        } catch {
-            setError('Error al guardar el perfil.');
-            return { ok: false };
-        }
+        if (err) { setError(err.message); return { ok: false }; }
+        
+        // Actualizamos el estado local inmediatamente
+        setUsuario(prev => ({ ...prev, ...datos }));
+        return { ok: true };
     }, [session]);
 
-    // ── Access token para requests autenticados al backend ────────────────
-    const getAccessToken = useCallback(() => {
-        return session?.access_token ?? null;
-    }, [session]);
+    const getAccessToken = useCallback(() => session?.access_token ?? null, [session]);
 
     return (
         <AuthContext.Provider value={{
-            usuario,
-            session,
-            loading,
-            error,
-            setError,
-            login,
-            loginConGoogle,
-            register,
-            logout,
-            actualizarPerfil,
-            getAccessToken,
+            usuario, session, loading, error, setError,
+            login, loginConGoogle, register, logout, actualizarPerfil, getAccessToken
         }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-// ─── Hook de consumo ─────────────────────────────────────────────────────────
 export function useAuthContext() {
     const ctx = useContext(AuthContext);
-    if (!ctx) {
-        throw new Error('useAuthContext debe usarse dentro de <AuthProvider>');
-    }
+    if (!ctx) throw new Error('useAuthContext debe usarse dentro de <AuthProvider>');
     return ctx;
 }

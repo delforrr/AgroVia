@@ -1,15 +1,8 @@
 // Middlewares de autenticación y autorización JWT — valida tokens de Supabase Auth
 // authMiddleware  → adjunta req.userId en rutas protegidas
-// adminMiddleware → verifica que el usuario tenga rol 'admin' (requiere authMiddleware previo)
-
+// Middleware de autenticación JWT — valida tokens emitidos por Supabase Auth
 import jwt from 'jsonwebtoken';
-import pool from '../config/db.js';
 
-/**
- * authMiddleware
- * Verifica el Bearer JWT enviado en el header Authorization.
- * Extrae el `sub` (UUID del usuario de Supabase Auth) y lo adjunta a req.userId.
- */
 export function authMiddleware(req, res, next) {
     const authHeader = req.headers['authorization'];
 
@@ -21,25 +14,30 @@ export function authMiddleware(req, res, next) {
     const secret = process.env.SUPABASE_JWT_SECRET;
 
     if (!secret) {
-        console.error('[Auth] ERROR CRÍTICO: SUPABASE_JWT_SECRET no definido en las variables de entorno.');
-        return res.status(500).json({ error: 'Error interno de configuración de seguridad.' });
+        console.error('[Auth] ERROR CRÍTICO: SUPABASE_JWT_SECRET no definido.');
+        return res.status(500).json({ error: 'Error interno de configuración.' });
     }
 
     try {
         const decoded = jwt.verify(token, secret);
-        
-        // El 'sub' en el JWT de Supabase es el UUID del usuario
+
         if (!decoded.sub) {
-            return res.status(401).json({ error: 'Token inválido: falta identificador de usuario.' });
+            return res.status(401).json({ error: 'Token inválido: falta sub.' });
         }
 
         req.userId = decoded.sub;
+
+        // Extraer rol de los metadatos del usuario si existe en el token
+        // Supabase guarda el rol en app_metadata usualmente
+        req.userRol = decoded.app_metadata?.role || 'usuario';
+
         next();
     } catch (err) {
         const message = err.name === 'TokenExpiredError' ? 'El token ha expirado.' : 'Token inválido.';
         return res.status(401).json({ error: message });
     }
 }
+
 
 /**
  * adminMiddleware
