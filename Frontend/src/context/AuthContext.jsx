@@ -168,7 +168,6 @@ export function AuthProvider({ children }) {
                     provincia: datos.provincia,
                     localidad: datos.localidad,
                     cuit:      datos.cuit,
-                    rol:       datos.rol,
                     updated_at: new Date().toISOString(),
                 })
                 .eq('id', session.user.id);

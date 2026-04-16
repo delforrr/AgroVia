@@ -12,6 +12,7 @@ import DarkModeRoundedIcon  from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 import { useThemeMode }      from '../../context/ThemeContext.jsx';
 import { useAuth }           from '../../hooks/useAuth.js';
@@ -105,6 +106,25 @@ function ResponsiveAppBar({ title, hasSearch = false }) {
                             </Badge>
                         </IconButton>
                     </Tooltip>
+
+                    {/* Badge de Admin — visible solo si el usuario es admin */}
+                    {usuario?.rol === 'admin' && (
+                        <Tooltip title="Panel de administración">
+                            <IconButton
+                                id="btn-admin-panel"
+                                onClick={() => navigate('/admin')}
+                                size="medium"
+                                sx={{
+                                    mx: 0.5,
+                                    color: 'warning.main',
+                                    transition: 'transform 0.3s',
+                                    '&:hover': { transform: 'scale(1.1)' },
+                                }}
+                            >
+                                <AdminPanelSettingsIcon sx={{ fontSize: 22 }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
 
                     {/* Toggle de tema */}
                     <Tooltip title={mode === 'dark' ? 'Modo claro' : 'Modo oscuro'}>

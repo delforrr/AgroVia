@@ -12,6 +12,9 @@ import AvisosPage from './pages/Avisos.jsx';
 import OperacionesPage from './pages/Operaciones.jsx';
 import MercadoPage from './pages/Mercado.jsx';
 import PerfilPage from './pages/Perfil.jsx';
+import AdminPanel from './pages/AdminPanel.jsx';
+
+import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 
 const router = createBrowserRouter([
   {
@@ -20,12 +23,14 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <InicioPage /> },
       { path: "avisos", element: <AvisosPage /> },
-      { path: "operaciones", element: <OperacionesPage /> },
+      { path: "operaciones", element: <ProtectedRoute><OperacionesPage /></ProtectedRoute> },
       { path: "mercado", element: <MercadoPage /> },
       { path: "perfil", element: <PerfilPage /> },
+      { path: "admin", element: <ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute> },
     ],
   },
 ]);
+
 
 function ThemedApp() {
   const { mode } = useThemeMode();

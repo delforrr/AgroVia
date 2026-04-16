@@ -7,44 +7,24 @@ import {
     Tooltip, Skeleton, Alert, Paper, Stack, Divider,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import GrainIcon from '@mui/icons-material/Grain';
 import PetsIcon from '@mui/icons-material/Pets';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
+import VarChip from '../components/common/VarChip.jsx';
+import StatCard from '../components/common/StatCard.jsx';
+import { fmtPrecio } from '../constants/formatters.js';
+
 import Navbar from '../components/layout/Navbar.jsx';
 import { useCotizaciones } from '../hooks/useCotizaciones.js';
 
-// ── Formateadores ─────────────────────────────────────────────────────
-const fmtPrecio = (n, decimales = 0) =>
-    n?.toLocaleString('es-AR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales }) ?? '—';
-
+// ── Formateadores locales ─────────────────────────────────────────────
 const fmtHora = (date) =>
     date
         ? date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         : '—';
 
-// ── Chip de variación ─────────────────────────────────────────────────
-function VarChip({ pct }) {
-    if (pct == null) return null;
-    const positivo = pct >= 0;
-    return (
-        <Chip
-            size="small"
-            icon={positivo ? <TrendingUpIcon fontSize="small" /> : <TrendingDownIcon fontSize="small" />}
-            label={`${positivo ? '+' : ''}${pct}%`}
-            sx={{
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                backgroundColor: positivo ? '#e8f5e9' : '#fce4ec',
-                color: positivo ? '#2e7d32' : '#c62828',
-                '& .MuiChip-icon': { color: 'inherit' },
-            }}
-        />
-    );
-}
 
 // ── Fila de skeleton ──────────────────────────────────────────────────
 function SkeletonRow() {
@@ -107,29 +87,6 @@ function TablaCotizaciones({ rows, loading, colPrecio }) {
     );
 }
 
-// ── Stat card de resumen ──────────────────────────────────────────────
-function StatCard({ label, value, sub, color }) {
-    return (
-        <Paper
-            elevation={0}
-            sx={{
-                flex: '1 1 140px',
-                p: 2,
-                borderRadius: 3,
-                border: '1px solid rgba(0,0,0,0.07)',
-                background: `linear-gradient(135deg, ${color}18 0%, ${color}08 100%)`,
-            }}
-        >
-            <Typography variant="caption" color="text.secondary" fontWeight={600} textTransform="uppercase" letterSpacing="0.05em">
-                {label}
-            </Typography>
-            <Typography variant="h6" fontWeight={700} color={color} lineHeight={1.2} mt={0.5}>
-                {value}
-            </Typography>
-            {sub && <Typography variant="caption" color="text.secondary">{sub}</Typography>}
-        </Paper>
-    );
-}
 
 // ── Página principal ──────────────────────────────────────────────────
 export default function MercadoPage() {
@@ -199,20 +156,20 @@ export default function MercadoPage() {
                 {/* ── Stat cards ── */}
                 {!loading && !error && (
                     <Stack direction="row" flexWrap="wrap" gap={1.5} mb={3}>
-                        <StatCard
+                        <StatCard variant="gradient"
                             label="Con alza"
                             value={`${mejores} de ${filas.length}`}
                             sub="productos subieron"
                             color="#2e7d32"
                         />
-                        <StatCard
+                        <StatCard variant="gradient"
                             label="Con baja"
                             value={`${peores} de ${filas.length}`}
                             sub="productos bajaron"
                             color="#c62828"
                         />
                         {maxSubida && (
-                            <StatCard
+                            <StatCard variant="gradient"
                                 label="Mayor suba"
                                 value={`${maxSubida.nombre}`}
                                 sub={`+${maxSubida.var_pct}%`}

@@ -76,6 +76,49 @@ export default class Aviso {
         return rows.length > 0 ? mapAviso(rows[0]) : null;
     }
 
+    /**
+     * Retorna el usuario_id del propietario del aviso, o null si no existe.
+     * Usado por los controllers para verificar permisos sin SQL raw en la capa de presentación.
+     */
+    static async getOwner(id) {
+        const { rows } = await pool.query(
+            `SELECT usuario_id FROM public.avisos WHERE id = $1`,
+            [id]
+        );
+        return rows.length > 0 ? rows[0].usuario_id : null;
+    }
+
+    /**
+     * Retorna todos los avisos con JOIN de usuario (para el panel de admin).
+     * Incluye cualquier estado, no solo 'activo'.
+     */
+    static async findAllAdmin() {
+        const { rows } = await pool.query(
+            `SELECT a.id, a.titulo, a.categoria, a.estado, a.precio, a.moneda,
+                    a.provincia, a.localidad, a.created_at,
+                    u.nombre AS vendedor_nombre, u.apellido AS vendedor_apellido,
+                    u.email AS vendedor_email
+             FROM public.avisos a
+             LEFT JOIN public.usuarios u ON u.id = a.usuario_id
+             ORDER BY a.created_at DESC`
+        );
+        return rows;
+    }
+
+    /**
+     * Actualiza el estado de un aviso ('activo' | 'pausado' | 'eliminado').
+     * Retorna { id, titulo, estado } o null si no existe.
+     */
+    static async setEstado(id, estado) {
+        const { rows } = await pool.query(
+            `UPDATE public.avisos SET estado = $1, updated_at = NOW()
+             WHERE id = $2
+             RETURNING id, titulo, estado`,
+            [estado, id]
+        );
+        return rows[0] ?? null;
+    }
+
     static async create(data, usuarioId) {
         const client = await pool.connect();
         try {

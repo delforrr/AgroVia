@@ -88,7 +88,7 @@ npm run dev
 ## Roadmap & Next Steps
 
 ### Phase 1: Authentication & Authorization (High Priority)
-- [ ] Complete Supabase Auth integration in the Frontend.
+- [x] Complete Supabase Auth integration in the Frontend.
 - [ ] Implement user profile page and permissions (Admin vs Regular User).
 - [ ] Secure all relevant Backend routes with `authMiddleware`.
 

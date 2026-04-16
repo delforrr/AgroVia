@@ -185,6 +185,162 @@
           }
         }
       }
+    },
+    "/api/negociaciones": {
+      "get": {
+        "summary": "Obtener todas las negociaciones",
+        "description": "Retorna la lista completa de negociaciones disponibles.",
+        "tags": [
+          "Negociaciones"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa"
+          }
+        }
+      },
+      "post": {
+        "summary": "Agregar una nueva negociación",
+        "description": "Agrega una nueva negociación a la base de datos",
+        "tags": [
+          "Negociaciones"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "aviso_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                  },
+                  "comprador_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                  },
+                  "oferta": {
+                    "type": "number",
+                    "example": 550000
+                  },
+                  "moneda": {
+                    "type": "string",
+                    "example": "ARS"
+                  },
+                  "estado": {
+                    "type": "string",
+                    "example": "Pendiente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Negociación creada exitosamente"
+          }
+        }
+      }
+    },
+    "/api/negociaciones/{id}": {
+      "get": {
+        "summary": "Obtener una negociación por ID",
+        "description": "Devuelve una única negociación que coincida con el ID proporcionado.",
+        "tags": [
+          "Negociaciones"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID de la negociación",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa"
+          },
+          "404": {
+            "description": "Negociación no encontrada"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualiza una negociación por ID",
+        "description": "Modifica uno o más campos de una negociación existente.",
+        "tags": [
+          "Negociaciones"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID de la negociación a modificar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oferta": {
+                    "type": "number"
+                  },
+                  "estado": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Negociación actualizada"
+          },
+          "404": {
+            "description": "Negociación no encontrada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar una negociación",
+        "description": "Elimina una negociación de forma permanente de la base de datos.",
+        "tags": [
+          "Negociaciones"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID de la negociación a eliminar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Negociación eliminada correctamente"
+          },
+          "404": {
+            "description": "Negociación no encontrada"
+          }
+        }
+      }
     }
   }
 }

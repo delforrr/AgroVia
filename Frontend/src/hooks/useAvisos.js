@@ -57,9 +57,9 @@ export function useAvisos() {
         if (busqueda.trim()) {
             const q = busqueda.toLowerCase();
             lista = lista.filter(a =>
-                a.titulo.toLowerCase().includes(q) ||
-                a.descripcion.toLowerCase().includes(q) ||
-                a.localidad.toLowerCase().includes(q)
+                a.titulo?.toLowerCase().includes(q) ||
+                a.descripcion?.toLowerCase().includes(q) ||
+                a.localidad?.toLowerCase().includes(q)
             );
         }
 

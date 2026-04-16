@@ -7,23 +7,32 @@ import PersonIcon from '@mui/icons-material/Person';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Leaf, PiggyBank } from "@boxicons/react"
 import BottomNav from './BottomNav';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const drawerWidth = 100;
-
-const MENU_ITEMS = [
-    { text: 'Inicio', icon: <HomeIcon />, path: '/' },
-    { text: 'Avisos', icon: <StorefrontIcon />, path: '/avisos' },
-    { text: 'Operaciones', icon: <BusinessIcon />, path: '/operaciones' },
-    { text: 'Mercado', icon: <TrendingUpIcon />, path: '/mercado' },
-    { text: 'Perfil', icon: <PersonIcon />, path: '/perfil' },
-];
 
 function AppDrawer() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const location = useLocation();
+    const { usuario } = useAuth();
+
+    const MENU_ITEMS = [
+        { text: 'Inicio',      icon: <HomeIcon />,      path: '/' },
+        { text: 'Avisos',      icon: <StorefrontIcon />, path: '/avisos' },
+        { text: 'Operaciones', icon: <BusinessIcon />,   path: '/operaciones' },
+        { text: 'Mercado',     icon: <TrendingUpIcon />, path: '/mercado' },
+        { text: 'Perfil',      icon: <PersonIcon />,     path: '/perfil' },
+        // Solo visible para admins
+        ...(usuario?.rol === 'admin' ? [{
+            text: 'Admin',
+            icon: <AdminPanelSettingsIcon sx={{ color: 'warning.main' }} />,
+            path: '/admin',
+        }] : []),
+    ];
 
     if (isMobile) {
         return (

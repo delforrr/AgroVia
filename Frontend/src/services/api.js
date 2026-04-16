@@ -1,37 +1,44 @@
-// Configuración base de Axios para las peticiones a la API
+// Configuración base de Axios para las peticiones a la API.
+// Un interceptor inyecta automáticamente el JWT en todas las requests,
+// eliminando la necesidad de pasar headers manualmente en cada llamada.
 
 import axios from 'axios';
 import { supabase } from '../lib/supabaseClient.js';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-const BASE = `${BASE_URL}/api/avisos`;
 
-// Headers con JWT para rutas protegidas (POST, PUT, DELETE)
-async function getAuthHeaders() {
+// ── Instancia principal con baseURL configurada ────────────────────────────────
+const api = axios.create({ baseURL: `${BASE_URL}/api` });
+
+// Interceptor de request: inyecta el Bearer token si hay sesión activa
+api.interceptors.request.use(async (config) => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) return {};
-    return { Authorization: `Bearer ${session.access_token}` };
-}
+    if (session?.access_token) {
+        config.headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    return config;
+});
+
+export default api;
+
+// ── Funciones específicas de Avisos ──────────────────────────────────────────
 
 export const getAvisos = async (params = {}) => {
-    const response = await axios.get(BASE, { params });
-    return response.data;
+    const { data } = await api.get('/avisos', { params });
+    return data;
 };
 
 export const postAviso = async (aviso) => {
-    const headers = await getAuthHeaders();
     // Si aviso es FormData, axios maneja el content-type automáticamente
-    const response = await axios.post(BASE, aviso, { headers });
-    return response.data;
+    const { data } = await api.post('/avisos', aviso);
+    return data;
 };
 
 export const putAviso = async (id, aviso) => {
-    const headers = await getAuthHeaders();
-    const response = await axios.put(`${BASE}/${id}`, aviso, { headers });
-    return response.data;
+    const { data } = await api.put(`/avisos/${id}`, aviso);
+    return data;
 };
 
 export const deleteAviso = async (id) => {
-    const headers = await getAuthHeaders();
-    await axios.delete(`${BASE}/${id}`, { headers });
+    await api.delete(`/avisos/${id}`);
 };

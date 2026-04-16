@@ -1,12 +1,12 @@
-// Enrutador principal de la API del Backend
-
 import express from 'express';
 import avisosRoutes from './avisos.js';
+import adminRoutes from './admin.js';
+import negociacionesRoutes from './negociaciones.js';
 
 const router = express.Router();
 
-// Agrega aquí todas tus rutas
 router.use('/avisos', avisosRoutes);
-// Ejemplo para futuras rutas: router.use('/usuarios', usuariosRoutes);
+router.use('/admin', adminRoutes);
+router.use('/negociaciones', negociacionesRoutes);
 
 export default router;

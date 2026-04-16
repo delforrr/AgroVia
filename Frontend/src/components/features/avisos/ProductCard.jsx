@@ -75,8 +75,7 @@ export default function ProductCard({ aviso }) {
     return (
         <Card
             sx={{
-                width: { xs: '100%', sm: 400 },
-                maxWidth: { xs: '100%', sm: 400 },
+                width: '100%',
                 borderRadius: 4,
                 display: 'flex',
                 flexDirection: 'column',
