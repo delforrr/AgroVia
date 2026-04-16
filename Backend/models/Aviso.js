@@ -184,26 +184,43 @@ export default class Aviso {
         }
     }
 
-    static async update(id, data) {
+    static async update(id, data, usuarioId = null) {
         const { titulo, descripcion, precio, moneda, imagen, provincia, localidad, estado } = data;
-        const { rows } = await pool.query(
-            `UPDATE public.avisos
-             SET titulo=$1, descripcion=$2, precio=$3, moneda=$4, imagen=$5,
-                 provincia=$6, localidad=$7, estado=COALESCE($8, estado), updated_at=NOW()
-             WHERE id=$9
-             RETURNING id`,
-            [titulo, descripcion, precio || null, moneda, imagen, provincia, localidad, estado, id]
-        );
+        
+        // Defensa en profundidad: si se provee usuarioId, se valida la autoría en la misma query
+        let query = `
+            UPDATE public.avisos
+            SET titulo=$1, descripcion=$2, precio=$3, moneda=$4, imagen=$5,
+                provincia=$6, localidad=$7, estado=COALESCE($8, estado), updated_at=NOW()
+            WHERE id=$9
+        `;
+        const params = [titulo, descripcion, precio || null, moneda, imagen, provincia, localidad, estado, id];
+
+        if (usuarioId) {
+            query += ` AND usuario_id = $10`;
+            params.push(usuarioId);
+        }
+
+        query += ` RETURNING id`;
+
+        const { rows } = await pool.query(query, params);
 
         if (rows.length === 0) return null;
         return this.findById(id);
     }
 
-    static async delete(id) {
-        const { rows } = await pool.query(
-            `DELETE FROM public.avisos WHERE id = $1 RETURNING id`,
-            [id]
-        );
+    static async delete(id, usuarioId = null) {
+        let query = `DELETE FROM public.avisos WHERE id = $1`;
+        const params = [id];
+
+        if (usuarioId) {
+            query += ` AND usuario_id = $2`;
+            params.push(usuarioId);
+        }
+
+        query += ` RETURNING id`;
+
+        const { rows } = await pool.query(query, params);
         return rows.length > 0;
     }
 }

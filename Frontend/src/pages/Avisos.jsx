@@ -71,8 +71,9 @@ export default function AvisosPage() {
             setErrorGuardando(false);
             await agregarAviso(datos);
             setModalPublicar(false);
-        } catch {
+        } catch (err) {
             setErrorGuardando(true);
+            throw err; // Re-lanzar para el hijo
         } finally {
             setGuardando(false);
         }

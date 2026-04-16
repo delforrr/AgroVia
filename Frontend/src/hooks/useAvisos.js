@@ -17,8 +17,6 @@ export const CAMPOS_BASE = [
     { name: 'moneda', label: 'Moneda', placeholder: 'ARS / USD' },
     { name: 'provincia', label: 'Provincia', required: true },
     { name: 'localidad', label: 'Localidad', required: true },
-    { name: 'vendedor', label: 'Nombre / Empresa', required: true },
-    { name: 'telefono', label: 'Teléfono' },
 ];
 
 export function useAvisos() {

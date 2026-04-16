@@ -12,8 +12,37 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CATEGORIAS, CAMPOS_BASE } from '../../../hooks/useAvisos.js';
 
+const CAMPOS_CATEGORIA = {
+    'Hacienda': [
+        { name: 'tipo_animal', label: 'Tipo de Animal', required: true, placeholder: 'Novillos, Vacas, etc.' },
+        { name: 'condicion', label: 'Condición', required: true, placeholder: 'Invernada, Cría, etc.' },
+        { name: 'cantidad_cabezas', label: 'Cantidad de Cabezas', type: 'number' },
+        { name: 'peso_promedio_kg', label: 'Peso Promedio (kg)', type: 'number' },
+        { name: 'sanidad', label: 'Sanidad' },
+    ],
+    'Maquinaria': [
+        { name: 'tipo_maquinaria', label: 'Tipo de Maquinaria', required: true, placeholder: 'Tractor, Cosechadora, etc.' },
+        { name: 'marca', label: 'Marca', required: true },
+        { name: 'modelo', label: 'Modelo', required: true },
+        { name: 'anio', label: 'Año', type: 'number' },
+        { name: 'horas_uso', label: 'Horas de Uso', type: 'number' },
+    ],
+    'Granos': [
+        { name: 'cultivo', label: 'Cultivo', required: true, placeholder: 'Soja, Maíz, Trigo, etc.' },
+        { name: 'cantidad_tn', label: 'Cantidad (Toneladas)', type: 'number' },
+        { name: 'humedad', label: 'Humedad (%)', type: 'number' },
+    ],
+    'Servicios': [
+        { name: 'tipo_servicio', label: 'Tipo de Servicio', required: true, placeholder: 'Cosecha, Siembra, Transporte, etc.' },
+        { name: 'modalidad', label: 'Modalidad', required: true, placeholder: 'Por hectárea, por viaje, etc.' },
+        { name: 'disponibilidad', label: 'Disponibilidad' },
+        { name: 'area_cobertura', label: 'Área de Cobertura' },
+        { name: 'unidad_precio', label: 'Unidad de Precio', placeholder: '$/ha, $/km, etc.' },
+    ],
+};
+
 export default function PublicarModal({ open, onClose, onSubmit, guardando, errorGuardando }) {
-    const [form, setForm] = useState({ categoria: 'Hacienda' });
+    const [form, setForm] = useState({ categoria: 'Hacienda', moneda: 'ARS' });
     const [imagen, setImagen] = useState(null);
     const [preview, setPreview] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -67,20 +96,26 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
 
         const formData = new FormData();
         Object.entries(form).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
+            if (value !== null && value !== undefined && value !== '') {
                 formData.append(key, value);
             }
         });
         formData.append('imagen', imagen);
 
-        await onSubmit(formData);
-        // Reset
-        setForm({ categoria: 'Hacienda' });
-        handleRemoveImage();
+        try {
+            await onSubmit(formData);
+            // Reset solo si fue exitoso
+            setForm({ categoria: 'Hacienda', moneda: 'ARS' });
+            handleRemoveImage();
+        } catch (err) {
+            console.error("Error al enviar el aviso:", err);
+            // El error se maneja en AvisosPage mediante props
+        }
     };
 
     const campoTitulo = CAMPOS_BASE.find(c => c.name === 'titulo');
     const restoCampos = CAMPOS_BASE.filter(c => c.name !== 'titulo');
+    const camposEspecificos = CAMPOS_CATEGORIA[form.categoria] || [];
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
@@ -94,7 +129,7 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                 <Box component="form" id="form-publicar" onSubmit={handleSubmit} sx={{ py: 1 }}>
                     {errorGuardando && (
                         <Alert severity="error" sx={{ mb: 2 }}>
-                            Error al publicar el aviso. Intenta de nuevo.
+                            Error al publicar el aviso. Verificá que todos los campos obligatorios estén completos.
                         </Alert>
                     )}
 
@@ -106,7 +141,18 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                                 name="categoria"
                                 value={form.categoria ?? 'Hacienda'}
                                 label="Categoría *"
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    // Al cambiar categoría, reseteamos campos específicos
+                                    const newCat = e.target.value;
+                                    setForm(prev => {
+                                        const cleanForm = { ...prev, categoria: newCat };
+                                        // Limpiar campos de otras categorías
+                                        Object.values(CAMPOS_CATEGORIA).flat().forEach(c => {
+                                            delete cleanForm[c.name];
+                                        });
+                                        return cleanForm;
+                                    });
+                                }}
                                 required
                             >
                                 {CATEGORIAS.filter(c => c !== 'Todos').map(c => (
@@ -183,22 +229,90 @@ export default function PublicarModal({ open, onClose, onSubmit, guardando, erro
                             />
                         </Box>
 
-                        {restoCampos.map(({ name, label, type, multiline, rows, required, placeholder }) => (
+                        <Stack direction="row" spacing={2}>
                             <TextField
-                                key={name}
-                                name={name}
-                                label={label + (required ? ' *' : '')}
-                                type={type ?? 'text'}
+                                name="precio"
+                                label="Precio"
+                                type="number"
                                 size="small"
-                                multiline={!!multiline}
-                                rows={rows}
-                                placeholder={placeholder}
-                                value={form[name] ?? ''}
+                                value={form.precio ?? ''}
                                 onChange={handleChange}
-                                required={!!required}
+                                fullWidth
+                                slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
+                            />
+                            <FormControl size="small" sx={{ minWidth: 100 }}>
+                                <InputLabel id="moneda-label">Moneda</InputLabel>
+                                <Select
+                                    labelId="moneda-label"
+                                    name="moneda"
+                                    value={form.moneda ?? 'ARS'}
+                                    label="Moneda"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="ARS">ARS</MenuItem>
+                                    <MenuItem value="USD">USD</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Stack>
+
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                name="provincia"
+                                label="Provincia *"
+                                size="small"
+                                value={form.provincia ?? ''}
+                                onChange={handleChange}
+                                required
                                 fullWidth
                             />
-                        ))}
+                            <TextField
+                                name="localidad"
+                                label="Localidad *"
+                                size="small"
+                                value={form.localidad ?? ''}
+                                onChange={handleChange}
+                                required
+                                fullWidth
+                            />
+                        </Stack>
+
+                        <TextField
+                            name="descripcion"
+                            label="Descripción *"
+                            size="small"
+                            multiline
+                            rows={3}
+                            value={form.descripcion ?? ''}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        {/* Campos específicos por categoría */}
+                        {camposEspecificos.length > 0 && (
+                            <Box sx={{ mt: 1 }}>
+                                <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'primary.main', fontWeight: 600 }}>
+                                    Detalles de {form.categoria}
+                                </Typography>
+                                <Stack spacing={2}>
+                                    {camposEspecificos.map(({ name, label, type, required, placeholder }) => (
+                                        <TextField
+                                            key={name}
+                                            name={name}
+                                            label={label + (required ? ' *' : '')}
+                                            type={type ?? 'text'}
+                                            size="small"
+                                            placeholder={placeholder}
+                                            value={form[name] ?? ''}
+                                            onChange={handleChange}
+                                            required={!!required}
+                                            fullWidth
+                                            {...(type === 'number' ? { slotProps: { htmlInput: { min: 0 } } } : {})}
+                                        />
+                                    ))}
+                                </Stack>
+                            </Box>
+                        )}
                     </Stack>
                 </Box>
             </DialogContent>

@@ -26,7 +26,7 @@ export const createAviso = asyncHandler(async (req, res) => {
 });
 
 export const updateAviso = asyncHandler(async (req, res) => {
-    // Verificar que el usuario sea el dueño o un admin
+    // 1. Verificación de permisos (Capa de Aplicación)
     const ownerId = await Aviso.getOwner(req.params.id);
     if (ownerId === null) return res.status(404).json({ error: 'Aviso no encontrado.' });
 
@@ -40,13 +40,17 @@ export const updateAviso = asyncHandler(async (req, res) => {
     if (req.file) {
         data.imagen = `/uploads/${req.file.filename}`;
     }
-    const avisoActualizado = await Aviso.update(req.params.id, data);
-    if (!avisoActualizado) return res.status(404).json({ error: 'Aviso no encontrado.' });
+
+    // 2. Ejecución con validación de autoría (Capa de Datos - Defensa en Profundidad)
+    // Si es admin, no pasamos el userId para permitirle editar cualquier cosa
+    const avisoActualizado = await Aviso.update(req.params.id, data, esAdmin ? null : req.userId);
+    
+    if (!avisoActualizado) return res.status(404).json({ error: 'Aviso no encontrado o permiso denegado.' });
     res.json(avisoActualizado);
 });
 
 export const deleteAviso = asyncHandler(async (req, res) => {
-    // Verificar que el usuario sea el dueño o un admin
+    // 1. Verificación de permisos (Capa de Aplicación)
     const ownerId = await Aviso.getOwner(req.params.id);
     if (ownerId === null) return res.status(404).json({ error: 'Aviso no encontrado.' });
 
@@ -56,7 +60,9 @@ export const deleteAviso = asyncHandler(async (req, res) => {
         return res.status(403).json({ error: 'No tenés permiso para eliminar este aviso.' });
     }
 
-    const success = await Aviso.delete(req.params.id);
-    if (!success) return res.status(404).json({ error: 'Aviso no encontrado.' });
+    // 2. Ejecución con validación de autoría (Capa de Datos)
+    const success = await Aviso.delete(req.params.id, esAdmin ? null : req.userId);
+    
+    if (!success) return res.status(404).json({ error: 'Aviso no encontrado o permiso denegado.' });
     res.status(204).send();
 });
