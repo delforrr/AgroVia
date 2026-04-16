@@ -89,8 +89,8 @@ npm run dev
 
 ### Phase 1: Authentication & Authorization (High Priority)
 - [x] Complete Supabase Auth integration in the Frontend.
-- [ ] Implement user profile page and permissions (Admin vs Regular User).
-- [ ] Secure all relevant Backend routes with `authMiddleware`.
+- [x] Implement user profile page and permissions (Admin vs Regular User).
+- [x] Secure all relevant Backend routes with `authMiddleware`.
 
 ### Phase 2: Core Functionality Enhancements
 - [ ] Add advanced filtering by price range, date, and specific category attributes (e.g., HP in Machinery).

@@ -29,18 +29,27 @@ const mapAviso = (row) => ({
     condicion: row.condicion,
     cantidad: row.cantidad_cabezas ? `${row.cantidad_cabezas} cabezas` : null,
     peso: row.peso_promedio_kg ? `${row.peso_promedio_kg} kg` : null,
+    edad: row.edad_meses ? `${row.edad_meses} meses` : null,
+    sanidad: row.sanidad,
     // Maquinaria
     marca: row.marca,
     modelo: row.modelo,
     anio: row.anio,
     horas: row.horas_uso ? `${row.horas_uso.toLocaleString('es-AR')} hs` : null,
+    potencia: row.potencia_cv ? `${row.potencia_cv} CV` : null,
+    traccion: row.traccion,
     // Granos
     cultivo: row.cultivo,
+    cantidad_tn: row.cantidad_tn,
     humedad: row.humedad,
+    proteina: row.proteina,
+    grado: row.grado_calidad,
+    disponibilidad_fecha: row.disponibilidad_fecha,
     // Servicios
     servicio: row.tipo_servicio,
     modalidad: row.modalidad,
     disponibilidad: row.disponibilidad,
+    area: row.area_cobertura,
 });
 
 const BASE_QUERY = `
@@ -51,18 +60,31 @@ const BASE_QUERY = `
 export default class Aviso {
     static async findAll(categoria, provincia) {
         const params = [];
-        let query = BASE_QUERY;
+        let query = `
+            SELECT a.*, u.nombre AS vendedor_nombre, u.apellido AS vendedor_apellido, u.telefono AS vendedor_telefono,
+                   ah.tipo_animal, ah.condicion, ah.cantidad_cabezas, ah.peso_promedio_kg, ah.edad_meses, ah.sanidad,
+                   am.marca, am.modelo, am.anio, am.horas_uso, am.tipo_maquinaria, am.potencia_cv, am.traccion,
+                   ag.cultivo, ag.cantidad_tn, ag.humedad, ag.proteina, ag.grado_calidad, ag.disponibilidad_fecha,
+                   asv.tipo_servicio, asv.modalidad, asv.disponibilidad, asv.area_cobertura, asv.unidad_precio
+            FROM public.avisos a
+            LEFT JOIN public.usuarios u ON u.id = a.usuario_id
+            LEFT JOIN public.avisos_hacienda ah ON a.id = ah.aviso_id
+            LEFT JOIN public.avisos_maquinaria am ON a.id = am.aviso_id
+            LEFT JOIN public.avisos_granos ag ON a.id = ag.aviso_id
+            LEFT JOIN public.avisos_servicios asv ON a.id = asv.aviso_id
+            WHERE a.estado = 'activo'
+        `;
 
         if (categoria) {
             params.push(categoria);
-            query += ` AND categoria = $${params.length}`;
+            query += ` AND a.categoria = $${params.length}`;
         }
         if (provincia) {
             params.push(provincia);
-            query += ` AND provincia ILIKE $${params.length}`;
+            query += ` AND a.provincia ILIKE $${params.length}`;
         }
 
-        query += ' ORDER BY created_at DESC';
+        query += ' ORDER BY a.created_at DESC';
 
         const { rows } = await pool.query(query, params);
         return rows.map(mapAviso);
@@ -70,7 +92,18 @@ export default class Aviso {
 
     static async findById(id) {
         const { rows } = await pool.query(
-            `SELECT * FROM public.avisos_completo WHERE id = $1`,
+            `SELECT a.*, u.nombre AS vendedor_nombre, u.apellido AS vendedor_apellido, u.telefono AS vendedor_telefono,
+                    ah.tipo_animal, ah.condicion, ah.cantidad_cabezas, ah.peso_promedio_kg, ah.edad_meses, ah.sanidad,
+                    am.marca, am.modelo, am.anio, am.horas_uso, am.tipo_maquinaria, am.potencia_cv, am.traccion,
+                    ag.cultivo, ag.cantidad_tn, ag.humedad, ag.proteina, ag.grado_calidad, ag.disponibilidad_fecha,
+                    asv.tipo_servicio, asv.modalidad, asv.disponibilidad, asv.area_cobertura, asv.unidad_precio
+             FROM public.avisos a
+             LEFT JOIN public.usuarios u ON u.id = a.usuario_id
+             LEFT JOIN public.avisos_hacienda ah ON a.id = ah.aviso_id
+             LEFT JOIN public.avisos_maquinaria am ON a.id = am.aviso_id
+             LEFT JOIN public.avisos_granos ag ON a.id = ag.aviso_id
+             LEFT JOIN public.avisos_servicios asv ON a.id = asv.aviso_id
+             WHERE a.id = $1`,
             [id]
         );
         return rows.length > 0 ? mapAviso(rows[0]) : null;
@@ -128,11 +161,11 @@ export default class Aviso {
                 categoria, titulo, descripcion, precio, moneda, imagen,
                 provincia, localidad,
                 // Hacienda
-                tipo_animal, condicion, cantidad_cabezas, peso_promedio_kg, sanidad,
+                tipo_animal, condicion, cantidad_cabezas, peso_promedio_kg, edad_meses, sanidad,
                 // Maquinaria
-                marca, modelo, anio, horas_uso, tipo_maquinaria,
+                marca, modelo, anio, horas_uso, tipo_maquinaria, potencia_cv, traccion,
                 // Granos
-                cultivo, cantidad_tn, humedad,
+                cultivo, cantidad_tn, humedad, proteina, grado_calidad, disponibilidad_fecha,
                 // Servicios
                 tipo_servicio, modalidad, disponibilidad, area_cobertura, unidad_precio,
             } = data;
@@ -150,21 +183,21 @@ export default class Aviso {
 
             if (categoria === 'Hacienda') {
                 await client.query(
-                    `INSERT INTO public.avisos_hacienda (aviso_id, tipo_animal, condicion, cantidad_cabezas, peso_promedio_kg, sanidad)
-                     VALUES ($1, $2, $3, $4, $5, $6)`,
-                    [aviso_id, tipo_animal, condicion, cantidad_cabezas || null, peso_promedio_kg || null, sanidad]
+                    `INSERT INTO public.avisos_hacienda (aviso_id, tipo_animal, condicion, cantidad_cabezas, peso_promedio_kg, edad_meses, sanidad)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    [aviso_id, tipo_animal, condicion, cantidad_cabezas || null, peso_promedio_kg || null, edad_meses || null, sanidad]
                 );
             } else if (categoria === 'Maquinaria') {
                 await client.query(
-                    `INSERT INTO public.avisos_maquinaria (aviso_id, marca, modelo, anio, horas_uso, tipo_maquinaria)
-                     VALUES ($1, $2, $3, $4, $5, $6)`,
-                    [aviso_id, marca, modelo, anio || null, horas_uso || null, tipo_maquinaria]
+                    `INSERT INTO public.avisos_maquinaria (aviso_id, marca, modelo, anio, horas_uso, tipo_maquinaria, potencia_cv, traccion)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [aviso_id, marca, modelo, anio || null, horas_uso || null, tipo_maquinaria, potencia_cv || null, traccion]
                 );
             } else if (categoria === 'Granos') {
                 await client.query(
-                    `INSERT INTO public.avisos_granos (aviso_id, cultivo, cantidad_tn, humedad)
-                     VALUES ($1, $2, $3, $4)`,
-                    [aviso_id, cultivo, cantidad_tn || null, humedad]
+                    `INSERT INTO public.avisos_granos (aviso_id, cultivo, cantidad_tn, humedad, proteina, grado_calidad, disponibilidad_fecha)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    [aviso_id, cultivo, cantidad_tn || null, humedad, proteina, grado_calidad, disponibilidad_fecha || null]
                 );
             } else if (categoria === 'Servicios') {
                 await client.query(

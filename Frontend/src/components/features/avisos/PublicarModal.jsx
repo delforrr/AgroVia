@@ -18,6 +18,7 @@ const CAMPOS_CATEGORIA = {
         { name: 'condicion', label: 'Condición', required: true, placeholder: 'Invernada, Cría, etc.' },
         { name: 'cantidad_cabezas', label: 'Cantidad de Cabezas', type: 'number' },
         { name: 'peso_promedio_kg', label: 'Peso Promedio (kg)', type: 'number' },
+        { name: 'edad_meses', label: 'Edad (meses)', type: 'number' },
         { name: 'sanidad', label: 'Sanidad' },
     ],
     'Maquinaria': [
@@ -26,11 +27,16 @@ const CAMPOS_CATEGORIA = {
         { name: 'modelo', label: 'Modelo', required: true },
         { name: 'anio', label: 'Año', type: 'number' },
         { name: 'horas_uso', label: 'Horas de Uso', type: 'number' },
+        { name: 'potencia_cv', label: 'Potencia (CV)', type: 'number' },
+        { name: 'traccion', label: 'Tracción', placeholder: '4x4, 4x2, etc.' },
     ],
     'Granos': [
         { name: 'cultivo', label: 'Cultivo', required: true, placeholder: 'Soja, Maíz, Trigo, etc.' },
         { name: 'cantidad_tn', label: 'Cantidad (Toneladas)', type: 'number' },
-        { name: 'humedad', label: 'Humedad (%)', type: 'number' },
+        { name: 'humedad', label: 'Humedad (%)' },
+        { name: 'proteina', label: 'Proteína (%)' },
+        { name: 'grado_calidad', label: 'Grado de Calidad', placeholder: 'Grado 1, 2, etc.' },
+        { name: 'disponibilidad_fecha', label: 'Fecha Disponibilidad', type: 'date' },
     ],
     'Servicios': [
         { name: 'tipo_servicio', label: 'Tipo de Servicio', required: true, placeholder: 'Cosecha, Siembra, Transporte, etc.' },

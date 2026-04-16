@@ -65,12 +65,12 @@ function DetallesCat({ aviso }) {
 
 export default function ProductCard({ aviso }) {
     const cat = CATEGORIA_CONFIG[aviso.categoria] ?? CATEGORIA_CONFIG['Servicios'];
-    const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') ?? 'http://localhost:3000';
+    const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
     
     // Si la imagen es una ruta relativa que empieza con /uploads, le concatenamos la base URL
     const imageUrl = aviso.imagen?.startsWith('/uploads') 
         ? `${BASE_URL}${aviso.imagen}` 
-        : aviso.imagen;
+        : aviso.imagen ?? null;
 
     return (
         <Card
@@ -86,15 +86,35 @@ export default function ProductCard({ aviso }) {
                 },
             }}
         >
-            {/* Imagen */}
+            {/* Imagen o Placeholder */}
             <Box sx={{ position: 'relative' }}>
-                <CardMedia
-                    component="img"
-                    height="200"
-                    image={imageUrl}
-                    alt={aviso.titulo}
-                    sx={{ objectFit: 'cover' }}
-                />
+                {imageUrl ? (
+                    <CardMedia
+                        component="img"
+                        height="200"
+                        image={imageUrl}
+                        alt={aviso.titulo}
+                        sx={{ objectFit: 'cover' }}
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling?.style && (e.target.nextSibling.style.display = 'flex'); }}
+                    />
+                ) : null}
+                {/* Placeholder cuando no hay imagen o falla la carga */}
+                <Box
+                    sx={{
+                        display: imageUrl ? 'none' : 'flex',
+                        height: 200,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: `${cat.color}22`,
+                        borderBottom: `3px solid ${cat.color}44`,
+                    }}
+                >
+                    <Box sx={{ fontSize: '3rem', opacity: 0.4 }}>
+                        {aviso.categoria === 'Hacienda' ? '🐄' :
+                         aviso.categoria === 'Maquinaria' ? '🚜' :
+                         aviso.categoria === 'Granos' ? '🌾' : '🛠️'}
+                    </Box>
+                </Box>
                 {/* Categoría */}
                 <Chip
                     icon={cat.icon}

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Box, Typography, Stack, TextField, InputAdornment,
     Chip, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Badge,
-    Tooltip, Fade
+    Tooltip, Fade, Skeleton, Card, CardContent
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,6 +20,24 @@ import FiltrosDrawer from '../components/features/avisos/FiltrosDrawer.jsx';
 import PublicarModal from '../components/features/avisos/PublicarModal.jsx';
 import { useAvisos, CATEGORIAS, ORDEN_OPTIONS } from '../hooks/useAvisos.js';
 import { useAuth } from '../hooks/useAuth.js';
+
+function ProductCardSkeleton() {
+    return (
+        <Card sx={{ width: '100%', borderRadius: 4, overflow: 'hidden' }}>
+            <Skeleton variant="rectangular" height={200} animation="wave" />
+            <CardContent>
+                <Skeleton variant="text" width="70%" height={28} animation="wave" />
+                <Skeleton variant="text" width="45%" height={20} animation="wave" sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="90%" height={16} animation="wave" />
+                <Skeleton variant="text" width="80%" height={16} animation="wave" sx={{ mb: 2 }} />
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
+                    <Skeleton variant="text" width={80} height={32} animation="wave" />
+                    <Skeleton variant="rounded" width={100} height={32} animation="wave" />
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+}
 
 function EmptyState({ onReset }) {
     return (
@@ -52,6 +70,7 @@ export default function AvisosPage() {
         avisosFiltrados,
         resetFiltros,
         hayFiltrosActivos,
+        cargando,
         agregarAviso,
         eliminarAviso,
     } = useAvisos();
@@ -221,13 +240,30 @@ export default function AvisosPage() {
                     />
                 ))}
                 <Typography variant="body2" sx={{ color: 'text.secondary', ml: 'auto', alignSelf: 'center' }}>
-                    {avisosFiltrados.length} {avisosFiltrados.length === 1 ? 'aviso' : 'avisos'}
+                    {cargando ? 'Cargando…' : `${avisosFiltrados.length} ${avisosFiltrados.length === 1 ? 'aviso' : 'avisos'}`}
                 </Typography>
             </Box>
 
             {/* Lista de avisos */}
             <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 } }}>
-                {avisosFiltrados.length === 0 ? (
+                {cargando ? (
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: '1fr',
+                                sm: 'repeat(2, 1fr)',
+                                lg: 'repeat(3, 1fr)',
+                                xl: 'repeat(4, 1fr)',
+                            },
+                            gap: 3,
+                        }}
+                    >
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <ProductCardSkeleton key={i} />
+                        ))}
+                    </Box>
+                ) : avisosFiltrados.length === 0 ? (
                     <EmptyState onReset={resetFiltros} />
                 ) : (
                     <Fade in>
