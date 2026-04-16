@@ -11,6 +11,114 @@
       "description": "Servidor Local"
     }
   ],
+  "components": {
+    "schemas": {
+      "Aviso": {
+        "type": "object",
+        "required": [
+          "categoria",
+          "titulo",
+          "precio"
+        ],
+        "properties": {
+          "categoria": {
+            "type": "string",
+            "example": "Hacienda"
+          },
+          "titulo": {
+            "type": "string",
+            "example": "50 cabezas terneros Hereford – 180 kg"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Terneros de excelente calidad."
+          },
+          "precio": {
+            "type": "number",
+            "example": 550000
+          },
+          "moneda": {
+            "type": "string",
+            "example": "ARS"
+          },
+          "provincia": {
+            "type": "string",
+            "example": "Córdoba"
+          },
+          "localidad": {
+            "type": "string",
+            "example": "Río Cuarto"
+          },
+          "vendedor": {
+            "type": "string",
+            "example": "Juan Rodríguez"
+          }
+        }
+      },
+      "AvisoUpdate": {
+        "type": "object",
+        "properties": {
+          "categoria": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "precio": {
+            "type": "number"
+          },
+          "moneda": {
+            "type": "string"
+          }
+        }
+      },
+      "Negociacion": {
+        "type": "object",
+        "required": [
+          "aviso_id",
+          "comprador_id",
+          "oferta",
+          "moneda"
+        ],
+        "properties": {
+          "aviso_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "comprador_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "oferta": {
+            "type": "number",
+            "example": 550000
+          },
+          "moneda": {
+            "type": "string",
+            "example": "ARS"
+          },
+          "estado": {
+            "type": "string",
+            "example": "Pendiente"
+          }
+        }
+      },
+      "NegociacionUpdate": {
+        "type": "object",
+        "properties": {
+          "oferta": {
+            "type": "number"
+          },
+          "estado": {
+            "type": "string",
+            "example": "Aceptada"
+          }
+        }
+      }
+    }
+  },
   "paths": {
     "/api/avisos": {
       "get": {
@@ -36,41 +144,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "categoria": {
-                    "type": "string",
-                    "example": "Hacienda"
-                  },
-                  "titulo": {
-                    "type": "string",
-                    "example": "50 cabezas terneros Hereford – 180 kg"
-                  },
-                  "descripcion": {
-                    "type": "string",
-                    "example": "Terneros de excelente calidad."
-                  },
-                  "precio": {
-                    "type": "number",
-                    "example": 550000
-                  },
-                  "moneda": {
-                    "type": "string",
-                    "example": "ARS"
-                  },
-                  "provincia": {
-                    "type": "string",
-                    "example": "Córdoba"
-                  },
-                  "localidad": {
-                    "type": "string",
-                    "example": "Río Cuarto"
-                  },
-                  "vendedor": {
-                    "type": "string",
-                    "example": "Juan Rodríguez"
-                  }
-                }
+                "$ref": "#/components/schemas/Aviso"
               }
             }
           }
@@ -96,7 +170,8 @@
             "required": true,
             "description": "UUID del aviso",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -122,7 +197,8 @@
             "required": true,
             "description": "UUID del aviso a modificar",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -131,21 +207,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "categoria": {
-                    "type": "string"
-                  },
-                  "titulo": {
-                    "type": "string"
-                  },
-                  "precio": {
-                    "type": "number"
-                  },
-                  "moneda": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/AvisoUpdate"
               }
             }
           }
@@ -172,7 +234,8 @@
             "required": true,
             "description": "UUID del aviso a eliminar",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -210,29 +273,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "aviso_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                  },
-                  "comprador_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                  },
-                  "oferta": {
-                    "type": "number",
-                    "example": 550000
-                  },
-                  "moneda": {
-                    "type": "string",
-                    "example": "ARS"
-                  },
-                  "estado": {
-                    "type": "string",
-                    "example": "Pendiente"
-                  }
-                }
+                "$ref": "#/components/schemas/Negociacion"
               }
             }
           }
@@ -258,7 +299,8 @@
             "required": true,
             "description": "UUID de la negociación",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -284,7 +326,8 @@
             "required": true,
             "description": "UUID de la negociación a modificar",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -293,15 +336,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "oferta": {
-                    "type": "number"
-                  },
-                  "estado": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/NegociacionUpdate"
               }
             }
           }
@@ -328,7 +363,8 @@
             "required": true,
             "description": "UUID de la negociación a eliminar",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
