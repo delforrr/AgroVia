@@ -33,19 +33,27 @@ export function useAvisos() {
     const [drawerFiltros, setDrawerFiltros] = useState(false);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchAvisos = async () => {
             try {
                 setCargando(true);
-                const data = await getAvisos();
+                const data = await getAvisos({}, { signal: controller.signal });
                 setAvisos(data);
             } catch (err) {
+                // AbortError es esperado al desmontar — no es un error real
+                if (err.name === 'AbortError' || err.name === 'CanceledError') return;
                 console.error("Error al cargar avisos:", err);
                 setError(err);
             } finally {
-                setCargando(false);
+                if (!controller.signal.aborted) {
+                    setCargando(false);
+                }
             }
         };
+
         fetchAvisos();
+        return () => controller.abort();
     }, []);
 
     const avisosFiltrados = useMemo(() => {

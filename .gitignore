@@ -35,5 +35,5 @@ Thumbs.db
 coverage/
 
 .turbo
-
+conductor
 supabase/

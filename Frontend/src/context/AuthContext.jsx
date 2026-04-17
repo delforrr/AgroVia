@@ -1,6 +1,9 @@
 // Contexto global de autenticación — provee el estado de sesión a toda la app.
+// Llama a setApiSession() en cada cambio de sesión para que el interceptor
+// de api.js tenga siempre el token actualizado de forma sincrónica.
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
+import { setApiSession } from '../services/api.js';
 
 const AuthContext = createContext(null);
 
@@ -51,25 +54,38 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let montado = true;
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+        // ── Paso 1: Hidratación desde el caché local de Supabase ───────────────────
+        // setLoading(false) se mueve al final del bloque (después de cargarPerfil)
+        // para garantizar que usuario.rol sea correcto antes del primer render.
+        supabase.auth.getSession().then(async ({ data: { session: s } }) => {
             if (!montado) return;
-
+            setApiSession(s);   // sincroniza el interceptor de api.js
             setSession(s);
-
             if (s?.user) {
-                // 1. Inmediatamente mostramos datos desde el Metadata (Sin esperar a la DB)
-                const userInicial = mapearUsuario(s.user);
-                setUsuario(userInicial);
-                setLoading(false);
-
-                // 2. Intentamos enriquecer con datos de la DB en segundo plano
+                setUsuario(mapearUsuario(s.user));
                 const perfil = await cargarPerfil(s.user.id);
-                if (montado && perfil) {
-                    setUsuario(mapearUsuario(s.user, perfil));
-                }
+                if (montado && perfil) setUsuario(mapearUsuario(s.user, perfil));
             } else {
                 setUsuario(null);
-                setLoading(false);
+            }
+            if (montado) setLoading(false); // siempre al final, rol ya correcto
+        });
+
+        // ── Paso 2: Listener para cambios futuros (login, logout, refresh) ────────
+        // INITIAL_SESSION ya fue manejado por getSession(); lo ignoramos para
+        // evitar doble procesamiento y posibles parpadeos de rol.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+            if (!montado) return;
+            if (event === 'INITIAL_SESSION') return;
+
+            setApiSession(s);   // mantiene el interceptor siempre actualizado
+            setSession(s);
+            if (s?.user) {
+                setUsuario(mapearUsuario(s.user));
+                const perfil = await cargarPerfil(s.user.id);
+                if (montado && perfil) setUsuario(mapearUsuario(s.user, perfil));
+            } else {
+                setUsuario(null);
             }
         });
 
