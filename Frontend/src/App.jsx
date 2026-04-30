@@ -13,6 +13,7 @@ import OperacionesPage from './pages/Operaciones.jsx';
 import MercadoPage from './pages/Mercado.jsx';
 import PerfilPage from './pages/Perfil.jsx';
 import AdminPanel from './pages/AdminPanel.jsx';
+import PublicarAvisoPage from './pages/PublicarAviso.jsx';
 
 import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <InicioPage /> },
       { path: "avisos", element: <AvisosPage /> },
+      { path: "publicar-aviso", element: <PublicarAvisoPage /> },
       { path: "operaciones", element: <ProtectedRoute><OperacionesPage /></ProtectedRoute> },
       { path: "mercado", element: <MercadoPage /> },
       { path: "perfil", element: <PerfilPage /> },

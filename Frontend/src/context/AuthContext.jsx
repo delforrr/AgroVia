@@ -87,6 +87,7 @@ export function AuthProvider({ children }) {
             } else {
                 setUsuario(null);
             }
+            if (montado) setLoading(false);
         });
 
         return () => { montado = false; subscription.unsubscribe(); };
